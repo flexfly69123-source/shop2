@@ -2,1537 +2,178 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-  />
-  <title>Telegram Mini App — Catalog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>TeleShop — Telegram Mini App</title>
 
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --bg: #050815;
-      --bg2: #070B1F;
-      --card: rgba(255,255,255,0.06);
-      --card2: rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.10);
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.62);
-      --muted2: rgba(255,255,255,0.45);
-      --accent: #3b82f6;
-      --accent2: #a855f7;
-
-      --shadow: 0 14px 40px rgba(0,0,0,0.45);
-      --shadow2: 0 10px 28px rgba(0,0,0,0.35);
-
-      --radius-card: 20px; /* по ТЗ */
-      --radius-soft: 16px;
-      --radius-btn: 18px;
-    }
-
-    body[data-theme="light"]{
-      --bg: #f3f4f6;
-      --bg2: #eef2ff;
-      --card: rgba(255,255,255,0.75);
-      --card2: rgba(255,255,255,0.55);
-      --border: rgba(0,0,0,0.06);
-      --text: #0f172a;
-      --muted: rgba(15,23,42,0.60);
-      --muted2: rgba(15,23,42,0.45);
-      --accent: #2563eb;
-      --accent2: #7c3aed;
-
-      --shadow: 0 14px 40px rgba(2,6,23,0.16);
-      --shadow2: 0 10px 28px rgba(2,6,23,0.12);
-    }
-
-    *{
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body{
-      height: 100%;
-      margin: 0;
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top right, rgba(0,191,255,0.12), transparent 42%),
-        radial-gradient(circle at top left, rgba(138,43,226,0.10), transparent 42%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
-      overflow: hidden;
-    }
-
-    /* Shell */
-    .app-shell{
-      max-width: 520px;
-      height: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    header{
-      height: 72px;
-      padding: 0 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(16px);
-      background: rgba(0,0,0,0.08);
-    }
-    body[data-theme="light"] header{
-      background: rgba(255,255,255,0.35);
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-    }
-    .brand-badge{
-      width: 36px; height: 36px;
-      border-radius: 14px;
-      display:grid; place-items:center;
-      font-weight: 900;
-      color: white;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: var(--shadow2);
-      user-select: none;
-    }
-    .brand-title{
-      font-weight: 900;
-      letter-spacing: .2px;
-      line-height: 1.1;
-    }
-    .brand-sub{
-      font-size: 11px;
-      color: var(--muted2);
-      font-weight: 800;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    .theme-toggle{
-      width: 42px; height: 42px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      display:grid; place-items:center;
-      cursor: pointer;
-      box-shadow: var(--shadow2);
-      transition: transform .18s ease, filter .18s ease;
-      user-select: none;
-    }
-    .theme-toggle:active{ transform: scale(0.96); filter: brightness(1.05); }
-
-    main{
-      flex: 1;
-      overflow-y: auto;
-      padding: 18px 16px calc(120px + env(safe-area-inset-bottom)) 16px;
-      scroll-behavior: smooth;
-    }
-
-    /* Sections */
-    .section{
-      display:none;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity .22s ease, transform .22s ease;
-    }
-    .section.active{
-      display:block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Bottom nav */
-    nav{
-      position: absolute;
-      left: 16px;
-      right: 16px;
-      bottom: calc(14px + env(safe-area-inset-bottom));
-      height: 66px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,0.18);
-      backdrop-filter: blur(18px);
-      display:flex;
-      align-items:center;
-      justify-content: space-around;
-      box-shadow: var(--shadow);
-      z-index: 30;
-      user-select: none;
-    }
-    body[data-theme="light"] nav{
-      background: rgba(255,255,255,0.45);
-    }
-
-    .nav-item{
-      width: 32%;
-      height: 46px;
-      border-radius: 18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 8px;
-      font-weight: 900;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--muted);
-      cursor: pointer;
-      transition: transform .18s ease, background .18s ease, color .18s ease;
-    }
-    .nav-item:active{ transform: scale(0.97); }
-    .nav-item.active{
-      color: var(--text);
-      background: rgba(59,130,246,0.14);
-      border: 1px solid rgba(59,130,246,0.25);
-    }
-
-    /* Hero */
-    .hero{
-      border-radius: 28px;
-      border: 1px solid var(--border);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(0,191,255,0.16), transparent 50%),
-        radial-gradient(circle at 80% 10%, rgba(138,43,226,0.16), transparent 55%),
-        var(--card2);
-      padding: 18px;
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      position: relative;
-    }
-    .hero h1{
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.05;
-      letter-spacing: -.3px;
-      font-weight: 900;
-    }
-    .hero p{
-      margin: 10px 0 0;
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    /* Cards grid */
-    .grid{
-      display:grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .product-card{
-      border-radius: var(--radius-card);
-      border: 1px solid var(--border);
-      background: var(--card);
-      backdrop-filter: blur(16px);
-      box-shadow: var(--shadow2);
-      padding: 16px;
-      cursor: pointer;
-      position: relative;
-      overflow:hidden;
-      transition: transform .20s ease, box-shadow .20s ease, border-color .20s ease, filter .20s ease;
-      user-select: none;
-    }
-    .product-card:hover{
-      transform: translateY(-2px);
-      filter: brightness(1.03);
-    }
-    .product-card:active{
-      transform: scale(0.98);
-    }
-
-    .row{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .left{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .icon{
-      width: 52px; height: 52px;
-      border-radius: 18px;
-      display:grid; place-items:center;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(0,191,255,0.18), transparent 55%),
-        radial-gradient(circle at 80% 10%, rgba(138,43,226,0.18), transparent 60%),
-        rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
-      flex: 0 0 auto;
-    }
-    body[data-theme="light"] .icon{
-      border: 1px solid rgba(0,0,0,0.06);
-      box-shadow: 0 10px 22px rgba(2,6,23,0.08);
-    }
-
-    .title{
-      font-weight: 900;
-      font-size: 16px;
-      line-height: 1.1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .desc{
-      font-weight: 700;
-      font-size: 11px;
-      color: var(--muted2);
-      margin-top: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Premium prices — строго #8A2BE2 -> #00BFFF */
-    .price-gradient-premium{
-      background: linear-gradient(90deg, #8A2BE2 0%, #00BFFF 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      -webkit-text-fill-color: transparent;
-      font-weight: 900;
-      letter-spacing: 0.2px;
-    }
-    .price-gradient-premium.shine{
-      background-size: 200% auto;
-      animation: shine 2.6s linear infinite;
-    }
-    @keyframes shine{
-      to{ background-position: 200% center; }
-    }
-
-    /* Small badge */
-    .badge{
-      position:absolute;
-      top: 12px;
-      right: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: #fff;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: var(--shadow2);
-    }
-
-    /* Buttons */
-    .btn{
-      width: 100%;
-      border: none;
-      border-radius: var(--radius-btn);
-      padding: 14px 14px;
-      font-weight: 900;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      cursor:pointer;
-      transition: transform .18s ease, filter .18s ease;
-      user-select: none;
-    }
-    .btn:active{ transform: scale(0.98); filter: brightness(1.05); }
-
-    .btn-primary{
-      color: #fff;
-      background: linear-gradient(135deg, var(--accent), #1d4ed8);
-      box-shadow: 0 10px 26px rgba(37,99,235,0.22);
-    }
-    .btn-ghost{
-      color: var(--text);
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-    }
-
-    /* Modal */
-    #modal-overlay{
-      position: fixed;
-      inset: 0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(14px);
-      z-index: 999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .18s ease;
-    }
-    #modal-overlay.open{
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-content{
-      width: min(440px, 100%);
-      border-radius: 28px;
-      border: 1px solid var(--border);
-      background: rgba(10,12,24,0.85);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      transform: translateY(10px) scale(0.98);
-      opacity: 0;
-      transition: transform .22s ease, opacity .22s ease;
-      overflow: hidden;
-    }
-    body[data-theme="light"] .modal-content{
-      background: rgba(255,255,255,0.78);
-    }
-    #modal-overlay.open .modal-content{
-      transform: translateY(0) scale(1);
-      opacity: 1;
-    }
-
-    .modal-head{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .modal-title{
-      font-weight: 900;
-      font-size: 16px;
-      letter-spacing: .2px;
-    }
-    .close-btn{
-      width: 40px; height: 40px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
-      font-weight: 900;
-      cursor:pointer;
-      transition: transform .18s ease;
-      user-select: none;
-    }
-    .close-btn:active{ transform: scale(0.96); }
-
-    .muted{
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    /* Stars input focus glow + scale */
-    .stars-input{
-      width: 100%;
-      padding: 14px 14px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.05);
-      outline: none;
-      font-weight: 900;
-      font-size: 18px;
-      color: var(--text);
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    }
-    body[data-theme="light"] .stars-input{
-      background: rgba(2,6,23,0.04);
-    }
-    .stars-input:focus{
-      transform: scale(1.02);
-      border-color: rgba(0, 191, 255, 0.6);
-      box-shadow:
-        0 0 0 4px rgba(0, 191, 255, 0.12),
-        0 10px 35px rgba(0, 191, 255, 0.12);
-    }
-    .stars-input.error{
-      border-color: rgba(239,68,68,0.8);
-      box-shadow: 0 0 0 4px rgba(239,68,68,0.12);
-      animation: shake .25s ease;
-    }
-    @keyframes shake{
-      0%,100%{ transform: translateX(0); }
-      25%{ transform: translateX(-5px); }
-      75%{ transform: translateX(5px); }
-    }
-
-    /* “Jumping digits” display (mirror) */
-    .stars-counter{
-      display:flex;
-      gap: 2px;
-      align-items: baseline;
-      justify-content: center;
-      padding: 10px 12px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
-      margin-bottom: 10px;
-      user-select: none;
-    }
-    body[data-theme="light"] .stars-counter{
-      background: rgba(2,6,23,0.03);
-    }
-
-    .digit{
-      display:inline-block;
-      font-weight: 900;
-      font-size: 28px;
-      line-height: 1;
-      transform: translateY(0) scale(1);
-      opacity: 1;
-
-      background: linear-gradient(90deg, #8A2BE2, #00BFFF);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      -webkit-text-fill-color: transparent;
-    }
-    .digit.pop{ animation: digitPop 240ms cubic-bezier(.2, .9, .2, 1); }
-    @keyframes digitPop{
-      0%   { transform: translateY(8px) scale(0.96); opacity: 0.4; }
-      60%  { transform: translateY(-4px) scale(1.05); opacity: 1; }
-      100% { transform: translateY(0) scale(1); }
-    }
-
-    /* Info screen */
-    .screen-head{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 12px;
-      margin: 6px 2px 14px 2px;
-    }
-    .back-btn{
-      width: 44px; height: 44px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-weight: 900;
-      cursor:pointer;
-      transition: transform .18s ease;
-      user-select: none;
-    }
-    .back-btn:active{ transform: scale(0.96); }
-    .screen-title{
-      font-weight: 900;
-      letter-spacing: .2px;
-    }
-
-    .info-card{
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: var(--shadow2);
-    }
-    .info-card h3{
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      font-weight: 900;
-    }
-    .link{
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 900;
-    }
-    .link:active{ opacity: .8; }
-
-    /* Profile */
-    .profile-head{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      margin: 6px 2px 16px 2px;
-    }
-    .avatar{
-      width: 58px; height: 58px;
-      border-radius: 22px;
-      display:grid; place-items:center;
-      font-weight: 900;
-      font-size: 22px;
-      color: white;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: var(--shadow2);
-      user-select: none;
-    }
-    .profile-name{
-      font-weight: 900;
-      font-size: 18px;
-      line-height: 1.1;
-    }
-    .profile-badge{
-      margin-top: 4px;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: rgba(59,130,246,0.95);
-    }
-
-    .wallet{
-      border-radius: 22px;
-      border: 1px solid var(--border);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(0,191,255,0.12), transparent 55%),
-        rgba(255,255,255,0.04);
-      padding: 16px;
-      box-shadow: var(--shadow2);
-      margin-bottom: 12px;
-    }
-    .wallet-label{
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--muted2);
-    }
-    .wallet-balance{
-      margin-top: 8px;
-      font-weight: 900;
-      font-size: 30px;
-      letter-spacing: -.4px;
-    }
-    .wallet-currency{
-      font-size: 18px;
-      color: var(--muted2);
-      font-weight: 900;
-      margin-left: 6px;
-    }
-
-    .two-btns{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    /* Toast */
-    .toast-root{
-      position: fixed;
-      left: 0; right: 0;
-      bottom: calc(90px + env(safe-area-inset-bottom));
-      display:flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items:center;
-      z-index: 1200;
-      pointer-events:none;
-    }
-    .toast{
-      width: min(440px, calc(100% - 32px));
-      background: rgba(16,185,129,0.14);
-      border: 1px solid rgba(16,185,129,0.35);
-      backdrop-filter: blur(14px);
-      border-radius: 18px;
-      padding: 12px 14px;
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      color: #d1fae5;
-      box-shadow: var(--shadow);
-      transform: translateY(10px) scale(0.98);
-      opacity: 0;
-      animation: toastIn 220ms ease forwards;
-    }
-    .toast .check{
-      width: 28px; height: 28px;
-      border-radius: 10px;
-      display:grid; place-items:center;
-      background: rgba(16,185,129,0.22);
-      border: 1px solid rgba(16,185,129,0.35);
-      flex: 0 0 auto;
-      font-weight: 900;
-    }
-    .toast.out{ animation: toastOut 180ms ease forwards; }
-    @keyframes toastIn{ to { opacity: 1; transform: translateY(0) scale(1);} }
-    @keyframes toastOut{ to { opacity: 0; transform: translateY(10px) scale(0.98);} }
-
-    /* Small list item inside modal */
-    .list-item{
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      padding: 12px;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor:pointer;
-      transition: transform .18s ease, filter .18s ease;
-      user-select: none;
-    }
-    body[data-theme="light"] .list-item{
-      background: rgba(2,6,23,0.03);
-    }
-    .list-item:active{ transform: scale(0.98); filter: brightness(1.03); }
-    .li-left{ display:flex; align-items:center; gap: 10px; min-width:0; }
-    .li-ic{
-      width: 42px; height: 42px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      display:grid; place-items:center;
-      background: rgba(255,255,255,0.04);
-      font-weight: 900;
-    }
-    .li-title{ font-weight: 900; font-size: 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .li-sub{ margin-top:2px; font-size: 11px; color: var(--muted2); font-weight: 700; }
-    .li-right{ font-weight: 900; color: var(--muted); }
-
-    .hr{
-      height: 1px;
-      background: var(--border);
-      margin: 12px 0;
-    }
-
-    .small-note{
-      font-size: 11px;
-      color: var(--muted2);
-      font-weight: 700;
-    }
-  </style>
+  <!-- Styles: base -> components -> animations -> themes -> responsive -->
+  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/animations.css" />
+  <link rel="stylesheet" href="./css/themes.css" />
+  <link rel="stylesheet" href="./css/responsive.css" />
 </head>
 
 <body data-theme="dark">
-  <!-- Modal -->
-  <div id="modal-overlay" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div id="modal-body"></div>
-    </div>
-  </div>
-
-  <!-- Toasts -->
-  <div id="toast-root" class="toast-root"></div>
-
-  <div class="app-shell">
-    <header>
+  <div class="app-shell" id="app">
+    <header class="app-header">
       <div class="brand">
-        <div class="brand-badge">T</div>
-        <div>
-          <div class="brand-title">Тумбочка <span class="price-gradient-premium">Store</span></div>
-          <div class="brand-sub">Mini App Catalog</div>
+        <div class="brand-badge" aria-hidden="true">T</div>
+        <div class="brand-title">
+          <div class="brand-name grad-title" id="brandTitle">TeleShop</div>
+          <div class="brand-sub">Premium • Stars • Balance</div>
         </div>
       </div>
 
-      <div class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-        <span id="theme-icon" style="font-size:18px;">🌙</span>
+      <div class="header-right">
+        <div class="balance-pill" id="headerBalance">0₽</div>
+        <button class="icon-btn" id="themeToggle" aria-label="Тема">
+          <span id="themeIcon">🌙</span>
+        </button>
       </div>
     </header>
 
-    <main id="main-scroll">
-      <!-- CATALOG (Главное меню) -->
-      <section id="catalog" class="section active">
-        <div class="hero">
-          <h1>Каталог<br><span class="price-gradient-premium shine">товаров</span></h1>
-          <p>Покупка Premium, Stars и других цифровых лотов — единым стилем.</p>
+    <main class="app-main" id="mainScroll">
+      <!-- MAIN MENU -->
+      <section class="screen active" id="screen-home">
+        <div class="hero hero-compact">
+          <div class="shop-name soft-grad" id="shopName">Тумбочка Звезд</div>
+          <div class="hero-title hero-title-anim">
+            Премиум <span class="grad-text">магазин</span>
+          </div>
+          <div class="hero-text">Выберите раздел — всё открывается через карточки.</div>
         </div>
 
-        <div class="grid">
-          <!-- Premium card -->
-          <div class="product-card" onclick="openPremiumOptions()">
-            <div class="badge">HOT</div>
-            <div class="row">
-              <div class="left">
-                <div class="icon" aria-hidden="true">
-                  <!-- simple cube icon -->
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L3 7L12 12L21 7L12 2Z" stroke="white" opacity="0.9" stroke-width="1.6" stroke-linejoin="round"/>
-                    <path d="M3 17L12 22L21 17" stroke="white" opacity="0.9" stroke-width="1.6" stroke-linejoin="round"/>
-                    <path d="M3 12L12 17L21 12" stroke="white" opacity="0.9" stroke-width="1.6" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div style="min-width:0;">
-                  <div class="title">Telegram Premium</div>
-                  <div class="desc">3 / 6 / 12 месяцев</div>
-                </div>
-              </div>
-              <div style="text-align:right;">
-                <div class="price-gradient-premium shine" style="font-size:16px;">от 299₽</div>
-                <div class="desc" style="margin-top:2px;">подарком</div>
-              </div>
+        <div class="menu-grid" id="menuGrid" aria-label="Главное меню">
+          <!-- cards injected by JS -->
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="screen" id="screen-profile">
+        <div class="screen-head">
+          <div>
+            <div class="screen-title">Профиль</div>
+            <div class="screen-sub" id="userLine">Гость</div>
+          </div>
+          <button class="btn btn-ghost" data-nav="home">Назад</button>
+        </div>
+
+        <div class="wallet">
+          <div class="wallet-row">
+            <div>
+              <div class="muted">Баланс</div>
+              <div class="wallet-balance"><span id="balanceValue">0</span> <span class="muted">₽</span></div>
             </div>
+
+            <button class="btn btn-primary" id="topUpBtn">Пополнить</button>
           </div>
 
-          <!-- Stars card -->
-          <div class="product-card" onclick="openStarsInputModal()">
-            <div class="row">
-              <div class="left">
-                <div class="icon" aria-hidden="true">
-                  <!-- star icon -->
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L15.2 8.3L22 9.3L17 14.1L18.2 21L12 17.8L5.8 21L7 14.1L2 9.3L8.8 8.3L12 2Z"
-                      stroke="white" opacity="0.9" stroke-width="1.6" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div style="min-width:0;">
-                  <div class="title">Stars</div>
-                  <div class="desc">Ввод суммы звёзд (number)</div>
-                </div>
-              </div>
-              <div class="price-gradient-premium" style="font-size:16px;">Flexible</div>
-            </div>
+          <div class="wallet-actions">
+            <button class="btn btn-ghost" id="historyBtn">История</button>
+            <button class="btn btn-ghost" id="supportBtn">Поддержка</button>
           </div>
+        </div>
 
-          <!-- Other card: options list -->
-          <div class="product-card" onclick="openUsernamesModal()">
-            <div class="row">
-              <div class="left">
-                <div class="icon" aria-hidden="true">
-                  <!-- user icon -->
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M20 21V19C20 17.9 19.6 16.9 18.8 16.2C18.1 15.4 17.1 15 16 15H8C6.9 15 5.9 15.4 5.2 16.2C4.4 16.9 4 17.9 4 19V21" stroke="white" opacity="0.9" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M12 11C14.2 11 16 9.2 16 7C16 4.8 14.2 3 12 3C9.8 3 8 4.8 8 7C8 9.2 9.8 11 12 11Z" stroke="white" opacity="0.9" stroke-width="1.6"/>
-                  </svg>
-                </div>
-                <div style="min-width:0;">
-                  <div class="title">Usernames</div>
-                  <div class="desc">Список опций (демо)</div>
-                </div>
-              </div>
-              <div class="desc" style="font-weight:900;">›</div>
+        <div class="card soft">
+          <div class="card-title">Настройки</div>
+          <div class="row-between">
+            <div>
+              <div class="row-title">Тема</div>
+              <div class="muted">Градиентный фон и контраст</div>
             </div>
-          </div>
-
-          <!-- Other card: input -->
-          <div class="product-card" onclick="openAnonymousNumbersModal()">
-            <div class="row">
-              <div class="left">
-                <div class="icon" aria-hidden="true">
-                  <!-- phone icon -->
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M22 16.9V19C22 20.1 21.2 21 20.1 21.2C18.2 21.5 16.3 21.1 14.7 20.2C13.2 19.4 11.8 18.4 10.6 17.1C9.3 15.9 8.3 14.5 7.5 13C6.6 11.4 6.2 9.5 6.5 7.6C6.7 6.5 7.6 5.7 8.7 5.7H11C11.9 5.7 12.7 6.3 12.9 7.2L13.3 9.1C13.5 9.8 13.3 10.6 12.8 11.1L12.1 11.8C13.0 13.4 14.3 14.7 15.9 15.6L16.6 14.9C17.1 14.4 17.9 14.2 18.6 14.4L20.5 14.8C21.4 15.0 22.0 15.8 22.0 16.7Z"
-                      stroke="white" opacity="0.9" stroke-width="1.4" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div style="min-width:0;">
-                  <div class="title">Anonymous Numbers</div>
-                  <div class="desc">Поле ввода (демо)</div>
-                </div>
-              </div>
-              <div class="desc" style="font-weight:900;">›</div>
-            </div>
-          </div>
-
-          <!-- Info shortcut (кнопка "Информация" в меню) -->
-          <div class="product-card" onclick="showSection('info')">
-            <div class="row">
-              <div class="left">
-                <div class="icon" aria-hidden="true">
-                  <!-- info icon -->
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="white" opacity="0.9" stroke-width="1.6"/>
-                    <path d="M12 10v6" stroke="white" opacity="0.9" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M12 7h.01" stroke="white" opacity="0.9" stroke-width="2.8" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <div style="min-width:0;">
-                  <div class="title">Информация</div>
-                  <div class="desc">О проекте, правила, поддержка</div>
-                </div>
-              </div>
-              <div class="price-gradient-premium">Открыть</div>
-            </div>
+            <button class="pill" id="themePill">Переключить</button>
           </div>
         </div>
       </section>
 
       <!-- INFO -->
-      <section id="info" class="section">
+      <section class="screen" id="screen-info">
         <div class="screen-head">
-          <button class="back-btn" onclick="showSection('catalog')">←</button>
-          <div class="screen-title">Информация</div>
-          <div style="width:44px;"></div>
+          <div>
+            <div class="screen-title">Информация</div>
+            <div class="screen-sub">О проекте и правила</div>
+          </div>
+          <button class="btn btn-ghost" data-nav="home">Назад</button>
         </div>
 
-        <div class="info-card">
-          <h3>О проекте</h3>
+        <div class="card">
+          <div class="card-title">О проекте</div>
           <div class="muted">
-            Это демонстрационная структура Telegram Mini App: каталог → выбор → покупка → уведомления, профиль и история.
+            Демо Mini App: Premium/Stars, профиль, пополнение, история и тосты.
           </div>
         </div>
 
-        <div class="info-card">
-          <h3>Правила пополнения</h3>
+        <div class="card">
+          <div class="card-title">Правила пополнения</div>
           <div class="muted">
-            • Проверяйте сумму и способ оплаты перед подтверждением.<br>
-            • Зачисление может занимать несколько минут.<br>
-            • При ошибках пишите в поддержку.
+            Демо-версия. В проде — проверка оплаты и выдача товара ботом.
           </div>
         </div>
 
-        <div class="info-card">
-          <h3>Поддержка</h3>
-          <div class="muted">
-            Контакт: <a class="link" href="https://t.me/your_support" target="_blank">t.me/your_support</a>
-          </div>
+        <div class="card">
+          <div class="card-title">Поддержка</div>
+          <div class="muted">Контакты: <span class="grad-text">@your_support</span></div>
         </div>
       </section>
 
-      <!-- PROFILE -->
-      <section id="profile" class="section">
-        <div class="profile-head">
-          <div class="avatar" id="u-icon">?</div>
-          <div style="min-width:0;">
-            <div class="profile-name" id="u-name">User</div>
-            <div class="profile-badge">Verified Buyer ★ 5.0</div>
+
+      <!-- ADMIN -->
+      <section class="screen" id="screen-admin">
+        <div class="screen-head">
+          <div>
+            <div class="screen-title">Админ панель</div>
+            <div class="screen-sub">Пользователи • Пополнения • Статистика</div>
           </div>
+          <button class="btn btn-ghost" data-nav="home">Назад</button>
         </div>
 
-        <div class="wallet">
-          <div class="wallet-label">Ваш кошелек</div>
-          <div class="wallet-balance">
-            <span id="balance-rub">0</span><span class="wallet-currency">₽</span>
-          </div>
-          <div class="small-note" style="margin-top:8px;">
-            Нажми “История”, чтобы увидеть последние действия (тестовые + реальные из демо).
-          </div>
+        <div class="card">
+          <div class="card-title">Статистика</div>
+          <div class="muted" id="adminStats">Загрузка...</div>
+        </div>
 
-          <div class="two-btns">
-            <button class="btn btn-primary" onclick="openPaymentMethodsModal()">Пополнить</button>
-            <button class="btn btn-ghost" onclick="openHistoryModal()">История</button>
-          </div>
-
+        <div class="card">
+          <div class="card-title">Пользователи</div>
+          <div class="muted small-note">Нажми на пользователя, чтобы начислить ₽ (тест).</div>
           <div class="hr"></div>
-
-          <button class="btn btn-ghost" onclick="openSupport()">
-            Support
-          </button>
+          <div class="admin-users" id="adminUsers" style="display:flex; flex-direction:column; gap:10px;"></div>
         </div>
       </section>
-    </main>
 
-    <nav>
-      <div class="nav-item active" data-target="catalog">Каталог</div>
-      <div class="nav-item" data-target="info">Инфо</div>
-      <div class="nav-item" data-target="profile">Профиль</div>
-    </nav>
+    </main
   </div>
 
-  <script>
-    // ===== Telegram helpers =====
-    const tg = window.Telegram?.WebApp;
-
-    function haptic(type='impact', style='light'){
-      try{
-        if(!tg?.HapticFeedback) return;
-        if(type === 'success') tg.HapticFeedback.notificationOccurred('success');
-        else if(type === 'error') tg.HapticFeedback.notificationOccurred('error');
-        else tg.HapticFeedback.impactOccurred(style);
-      }catch(e){}
-    }
-
-    // ===== Theme =====
-    const THEME_KEY = 'tumbo_theme_v1';
-    const themeIcon = document.getElementById('theme-icon');
-
-    function applyTheme(next){
-      document.body.setAttribute('data-theme', next);
-      if(themeIcon) themeIcon.textContent = next === 'dark' ? '🌙' : '☀️';
-      localStorage.setItem(THEME_KEY, next);
-    }
-
-    function toggleTheme(){
-      const current = document.body.getAttribute('data-theme') || 'dark';
-      const next = current === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      haptic('impact','light');
-    }
-
-    (function initTheme(){
-      const saved = localStorage.getItem(THEME_KEY);
-      applyTheme(saved || 'dark');
-    })();
-
-    // ===== Navigation =====
-    function showSection(id){
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      const el = document.getElementById(id);
-      if(el) el.classList.add('active');
-
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const nav = document.querySelector(`.nav-item[data-target="${id}"]`);
-      if(nav) nav.classList.add('active');
-
-      const main = document.getElementById('main-scroll');
-      if(main) main.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-        showSection(item.dataset.target);
-        haptic('impact','light');
-      });
-    });
-
-    // ===== Modal =====
-    function openModal(html){
-      const overlay = document.getElementById('modal-overlay');
-      const body = document.getElementById('modal-body');
-      if(body) body.innerHTML = html;
-      overlay?.classList.add('open');
-      haptic('impact','light');
-    }
-
-    function closeModal(){
-      const overlay = document.getElementById('modal-overlay');
-      overlay?.classList.remove('open');
-    }
-
-    // ===== Toast =====
-    function showToastSuccess(text = 'Успешно! Заказ оформлен'){
-      const root = document.getElementById('toast-root');
-      if(!root) return;
-
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.innerHTML = `
-        <div class="check">✓</div>
-        <div style="font-weight:900; font-size:13px; line-height:1.2;">${text}</div>
-      `;
-      root.appendChild(toast);
-
-      haptic('success');
-
-      setTimeout(() => toast.classList.add('out'), 1700);
-      setTimeout(() => toast.remove(), 1950);
-    }
-
-    // ===== History + Balance (demo state) =====
-    const HISTORY_KEY = 'tumbo_history_v1';
-    const BALANCE_KEY = 'tumbo_balance_rub_v1';
-
-    let historyItems = loadHistory();
-    let balanceRub = loadBalance();
-
-    function loadHistory(){
-      try{
-        const raw = localStorage.getItem(HISTORY_KEY);
-        return raw ? JSON.parse(raw) : [
-          { t: 'Пополнение: +100₽ (демо)', ts: Date.now() - 3600_000 },
-          { t: 'Покупка Premium: -499₽ (демо)', ts: Date.now() - 7200_000 },
-        ];
-      }catch(e){
-        return [];
-      }
-    }
-
-    function saveHistory(){
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(historyItems.slice(0, 40)));
-    }
-
-    function addHistory(text){
-      historyItems.unshift({ t: text, ts: Date.now() });
-      saveHistory();
-    }
-
-    function loadBalance(){
-      const raw = localStorage.getItem(BALANCE_KEY);
-      const n = Number(raw);
-      return Number.isFinite(n) ? n : 0;
-    }
-
-    function saveBalance(){
-      localStorage.setItem(BALANCE_KEY, String(balanceRub));
-      renderBalance();
-    }
-
-    function renderBalance(){
-      const el = document.getElementById('balance-rub');
-      if(el) el.textContent = String(balanceRub);
-    }
-    renderBalance();
-
-    function formatTime(ts){
-      const d = new Date(ts);
-      return d.toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-    }
-
-    function openHistoryModal(){
-      const list = historyItems.length
-        ? historyItems.map(i => `
-          <div style="padding:12px; border-radius:18px; border:1px solid var(--border); background:rgba(255,255,255,0.04); margin-bottom:10px;">
-            <div style="font-weight:900; font-size:13px;">${i.t}</div>
-            <div style="margin-top:4px; font-size:11px; color:var(--muted2); font-weight:800;">${formatTime(i.ts)}</div>
-          </div>
-        `).join('')
-        : `<div class="muted">Пока пусто.</div>`;
-
-      openModal(`
-        <div class="modal-head">
-          <div class="modal-title">История операций</div>
-          <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-        ${list}
-      `);
-    }
-
-    // ===== Premium (3/6/12) =====
-    function premiumRow(months, price){
-      return `
-        <div class="list-item" data-premium-buy data-months="${months}" data-price="${price}">
-          <div class="li-left">
-            <div class="li-ic">★</div>
-            <div style="min-width:0;">
-              <div class="li-title">${months} месяцев</div>
-              <div class="li-sub">Telegram Premium</div>
-            </div>
-          </div>
-          <div class="price-gradient-premium shine" style="font-size:14px;">${price}₽</div>
-        </div>
-      `;
-    }
-
-    function openPremiumOptions(){
-      openModal(`
-        <div class="modal-head">
-          <div class="modal-title">Telegram Premium</div>
-          <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-        <div class="muted" style="margin-bottom:12px;">Выберите срок подписки:</div>
-
-        <div style="display:grid; gap:10px;">
-          ${premiumRow(3, 299)}
-          ${premiumRow(6, 499)}
-          ${premiumRow(12, 999)}
-        </div>
-
-        <div class="hr"></div>
-        <div class="small-note">
-          Демо-логика: при выборе списываем ₽ с баланса (если хватает) и пишем в историю.
-        </div>
-      `);
-
-      document.querySelectorAll('[data-premium-buy]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const months = Number(btn.dataset.months);
-          const price = Number(btn.dataset.price);
-
-          // Демонстрационная проверка баланса
-          if(balanceRub < price){
-            haptic('error');
-            showToastSuccess('Недостаточно средств (демо). Пополни баланс.');
-            return;
-          }
-
-          balanceRub -= price;
-          saveBalance();
-
-          addHistory(`Покупка Premium: ${months} мес. -${price}₽`);
-          closeModal();
-          showToastSuccess('Успешно! Заказ оформлен');
-        });
-      });
-    }
-
-    // ===== Stars (input number + glow + scale + jumping digits) =====
-    function sanitizeDigits(val){
-      const s = String(val ?? '').replace(/[^\d]/g, '');
-      return s.slice(0, 9);
-    }
-
-    function renderCounter(counterEl, valueStr, instant=false, prevStr=''){
-      if(!counterEl) return;
-      const next = String(valueStr || '0');
-      const prev = String(prevStr || '');
-
-      counterEl.innerHTML = '';
-      for(let i=0; i<next.length; i++){
-        const ch = next[i];
-        const span = document.createElement('span');
-        span.className = 'digit';
-        span.textContent = ch;
-
-        const changed = !instant && (prev[i] !== ch);
-        if(changed){
-          span.classList.add('pop');
-          span.addEventListener('animationend', () => span.classList.remove('pop'), { once:true });
-        }
-
-        counterEl.appendChild(span);
-      }
-    }
-
-    function openStarsInputModal(){
-      openModal(`
-        <div class="modal-head">
-          <div class="modal-title">Telegram Stars</div>
-          <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-
-        <div class="muted" style="margin-bottom:10px;">Введите количество звёзд:</div>
-        <div id="stars-counter" class="stars-counter"></div>
-
-        <input id="stars-input"
-          class="stars-input"
-          type="number"
-          inputmode="numeric"
-          min="1"
-          placeholder="Например: 100"
-        />
-
-        <button id="stars-buy" class="btn btn-primary" style="margin-top:12px;">
-          Купить
-        </button>
-
-        <div class="hr"></div>
-        <div class="small-note">
-          Демо-логика: при покупке Stars списываем 1₽ за 1 Star (чтобы было видно на балансе).
-        </div>
-      `);
-
-      const input = document.getElementById('stars-input');
-      const counter = document.getElementById('stars-counter');
-      const buyBtn = document.getElementById('stars-buy');
-
-      let lastValue = '0';
-      renderCounter(counter, '0', true);
-
-      input.addEventListener('input', () => {
-        const v = sanitizeDigits(input.value);
-        input.value = v;
-        renderCounter(counter, v || '0', false, lastValue);
-        lastValue = v || '0';
-      });
-
-      buyBtn.addEventListener('click', () => {
-        const v = Number(sanitizeDigits(input.value));
-
-        if(!v || v <= 0){
-          input.classList.add('error');
-          haptic('error');
-          setTimeout(() => input.classList.remove('error'), 320);
-          return;
-        }
-
-        const cost = v; // 1₽ за 1 star (demo)
-        if(balanceRub < cost){
-          input.classList.add('error');
-          haptic('error');
-          setTimeout(() => input.classList.remove('error'), 320);
-          showToastSuccess('Недостаточно средств (демо). Пополни баланс.');
-          return;
-        }
-
-        balanceRub -= cost;
-        saveBalance();
-
-        addHistory(`Покупка Stars: +${v} Stars (-${cost}₽)`);
-        closeModal();
-        showToastSuccess('Успешно! Заказ оформлен');
-      });
-
-      setTimeout(() => input.focus(), 60);
-    }
-
-    // ===== Other demo: Usernames (options list) =====
-    function openUsernamesModal(){
-      openModal(`
-        <div class="modal-head">
-          <div class="modal-title">Usernames</div>
-          <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-
-        <div class="muted" style="margin-bottom:12px;">Выберите вариант (демо):</div>
-
-        <div style="display:grid; gap:10px;">
-          <div class="list-item" data-u-buy data-name="@shortname" data-price="490">
-            <div class="li-left">
-              <div class="li-ic">＠</div>
-              <div style="min-width:0;">
-                <div class="li-title">@shortname</div>
-                <div class="li-sub">Стандартный</div>
-              </div>
-            </div>
-            <div class="price-gradient-premium shine">490₽</div>
-          </div>
-
-          <div class="list-item" data-u-buy data-name="@vip" data-price="1290">
-            <div class="li-left">
-              <div class="li-ic">★</div>
-              <div style="min-width:0;">
-                <div class="li-title">@vip</div>
-                <div class="li-sub">Премиум</div>
-              </div>
-            </div>
-            <div class="price-gradient-premium shine">1290₽</div>
-          </div>
-
-          <div class="list-item" data-u-buy data-name="@rare" data-price="3990">
-            <div class="li-left">
-              <div class="li-ic">♛</div>
-              <div style="min-width:0;">
-                <div class="li-title">@rare</div>
-                <div class="li-sub">Аукцион</div>
-              </div>
-            </div>
-            <div class="price-gradient-premium shine">3990₽</div>
-          </div>
-        </div>
-
-        <div class="hr"></div>
-        <div class="small-note">
-          Демо: при выборе списываем ₽, пишем историю и показываем Toast.
-        </div>
-      `);
-
-      document.querySelectorAll('[data-u-buy]').forEach(item => {
-        item.addEventListener('click', () => {
-          const name = item.dataset.name;
-          const price = Number(item.dataset.price);
-
-          if(balanceRub < price){
-            haptic('error');
-            showToastSuccess('Недостаточно средств (демо). Пополни баланс.');
-            return;
-          }
-
-          balanceRub -= price;
-          saveBalance();
-
-          addHistory(`Покупка Username: ${name} -${price}₽`);
-          closeModal();
-          showToastSuccess('Успешно! Заказ оформлен');
-        });
-      });
-    }
-
-    // ===== Other demo: Anonymous Numbers (input) =====
-    function openAnonymousNumbersModal(){
-      openModal(`
-        <div class="modal-head">
-          <div class="modal-title">Anonymous Numbers</div>
-          <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-
-        <div class="muted" style="margin-bottom:10px;">Введите количество номеров (демо):</div>
-
-        <div id="num-counter" class="stars-counter"></div>
-        <input id="num-input" class="stars-input" type="number" inputmode="numeric" min="1" placeholder="Например: 1"/>
-
-        <button id="num-buy" class="btn btn-primary" style="margin-top:12px;">
-          Купить
-        </button>
-
-        <div class="hr"></div>
-        <div class="small-note">
-          Демо: 1 номер = 250₽.
-        </div>
-      `);
-
-      const input = document.getElementById('num-input');
-      const counter = document.getElementById('num-counter');
-      const buyBtn = document.getElementById('num-buy');
-
-      let lastValue = '0';
-      renderCounter(counter, '0', true);
-
-      input.addEventListener('input', () => {
-        const v = sanitizeDigits(input.value);
-        input.value = v;
-        renderCounter(counter, v || '0', false, lastValue);
-        lastValue = v || '0';
-      });
-
-      buyBtn.addEventListener('click', () => {
-        const qty = Number(sanitizeDigits(input.value));
-        if(!qty || qty <= 0){
-          input.classList.add('error');
-          haptic('error');
-          setTimeout(() => input.classList.remove('error'), 320);
-          return;
-        }
-
-        const price = qty * 250;
-        if(balanceRub < price){
-          input.classList.add('error');
-          haptic('error');
-          setTimeout(() => input.classList.remove('error'), 320);
-          showToastSuccess('Недостаточно средств (демо). Пополни баланс.');
-          return;
-        }
-
-        balanceRub -= price;
-        saveBalance();
-
-        addHistory(`Покупка Numbers: x${qty} -${price}₽`);
-        closeModal();
-        showToastSuccess('Успешно! Заказ оформлен');
-      });
-
-      setTimeout(() => input.focus(), 60);
-    }
-
-    // ===== Top-up flow: methods -> amount =====
-    function payRow(key, title, icon, hint){
-      return `
-        <div class="list-item" data-pay="${key}">
-          <div class="li-left">
-            <div class="li-ic">${icon}</div>
-            <div style="min-width:0;">
-              <div class="li-title">${title}</div>
-              <div class="li-sub">${hint}</div>
-            </div>
-          </div>
-          <div class="li-right">›</div>
-        </div>
-      `;
-    }
-
-    function openPaymentMethodsModal(){
-      openModal(`
-        <div class="modal-head">
-          <div class="modal-title">Пополнение баланса</div>
-          <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-
-        <div class="muted" style="margin-bottom:12px;">Выберите способ оплаты:</div>
-
-        <div style="display:grid; gap:10px;">
-          ${payRow('sbp', 'СБП', '🏦', 'Система быстрых платежей')}
-          ${payRow('card', 'Банковская карта', '💳', 'Visa / Mastercard')}
-          ${payRow('btc', 'Bitcoin (BTC)', '₿', 'Крипто-оплата')}
-        </div>
-
-        <div class="hr"></div>
-        <div class="small-note">Демо: после выбора способа попросим сумму пополнения.</div>
-      `);
-
-      document.querySelectorAll('[data-pay]').forEach(el => {
-        el.addEventListener('click', () => {
-          const method = el.dataset.pay;
-          openTopUpAmountStep(method);
-        });
-      });
-    }
-
-    function openTopUpAmountStep(method){
-      const methodName = method === 'sbp' ? 'СБП' : method === 'card' ? 'Карта' : 'BTC';
-
-      openModal(`
-        <div class="modal-head">
-          <div class="modal-title">Сумма пополнения</div>
-          <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-
-        <div class="muted" style="margin-bottom:10px;">
-          Способ: <b>${methodName}</b>. Введите сумму (₽):
-        </div>
-
-        <div id="topup-counter" class="stars-counter"></div>
-        <input id="topup-input" class="stars-input" type="number" inputmode="numeric" min="1" placeholder="Например: 500" />
-
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top:10px;">
-          <button class="btn btn-ghost" style="padding:10px; letter-spacing:.02em; text-transform:none;" data-quick="100">100</button>
-          <button class="btn btn-ghost" style="padding:10px; letter-spacing:.02em; text-transform:none;" data-quick="300">300</button>
-          <button class="btn btn-ghost" style="padding:10px; letter-spacing:.02em; text-transform:none;" data-quick="500">500</button>
-          <button class="btn btn-ghost" style="padding:10px; letter-spacing:.02em; text-transform:none;" data-quick="1000">1000</button>
-        </div>
-
-        <button id="topup-confirm" class="btn btn-primary" style="margin-top:12px;">Подтвердить</button>
-
-        <div class="hr"></div>
-        <div class="small-note">
-          Демо: подтверждение сразу добавляет ₽ на баланс и пишет запись в историю.
-        </div>
-      `);
-
-      const input = document.getElementById('topup-input');
-      const counter = document.getElementById('topup-counter');
-      const confirm = document.getElementById('topup-confirm');
-
-      let lastValue = '0';
-      renderCounter(counter, '0', true);
-
-      input.addEventListener('input', () => {
-        const v = sanitizeDigits(input.value);
-        input.value = v;
-        renderCounter(counter, v || '0', false, lastValue);
-        lastValue = v || '0';
-      });
-
-      document.querySelectorAll('[data-quick]').forEach(b => {
-        b.addEventListener('click', () => {
-          input.value = b.dataset.quick;
-          const v = sanitizeDigits(input.value);
-          renderCounter(counter, v || '0', false, lastValue);
-          lastValue = v || '0';
-          haptic('impact','light');
-        });
-      });
-
-      confirm.addEventListener('click', () => {
-        const amount = Number(sanitizeDigits(input.value));
-        if(!amount || amount <= 0){
-          input.classList.add('error');
-          haptic('error');
-          setTimeout(() => input.classList.remove('error'), 320);
-          return;
-        }
-
-        balanceRub += amount;
-        saveBalance();
-
-        addHistory(`Пополнение (${methodName}): +${amount}₽`);
-        closeModal();
-        showToastSuccess('Успешно! Баланс пополнен');
-      });
-
-      setTimeout(() => input.focus(), 60);
-    }
-
-    // ===== Support =====
-    function openSupport(){
-      const link = 'https://t.me/your_support';
-      try{
-        if(tg?.openTelegramLink) tg.openTelegramLink(link);
-        else window.open(link, '_blank');
-      }catch(e){
-        window.open(link, '_blank');
-      }
-    }
-
-    // ===== Init Telegram user =====
-    (function initTelegram(){
-      try{
-        if(tg){
-          tg.ready();
-          tg.expand();
-
-          const u = tg.initDataUnsafe?.user;
-          if(u){
-            const name = [u.first_name, u.last_name].filter(Boolean).join(' ');
-            const elName = document.getElementById('u-name');
-            const elIcon = document.getElementById('u-icon');
-            if(elName) elName.textContent = name || 'User';
-            if(elIcon) elIcon.textContent = (u.first_name?.[0] || '?').toUpperCase();
-          }
-        }
-      }catch(e){}
-    })();
-
-    // ===== Extra: give some demo balance on first run =====
-    (function initFirstBalance(){
-      const raw = localStorage.getItem(BALANCE_KEY);
-      if(raw === null){
-        balanceRub = 1500; // стартовый демо баланс, чтобы было что покупать
-        saveBalance();
-        addHistory('Демо: стартовый баланс +1500₽');
-      }
-    })();
-  </script>
+  <!-- Modal + Toast roots -->
+  <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast-root" id="toastRoot" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Scripts order: config -> utils -> components -> handlers -> app -->
+  <script src="./config/constants.js"></script>
+
+  <script src="./js/utils/helpers.js"></script>
+  <script src="./js/utils/storage.js"></script>
+  <script src="./js/utils/animations.js"></script>
+
+  <script src="./js/components/modal.js"></script>
+  <script src="./js/components/toast.js"></script>
+  <script src="./js/components/cards.js"></script>
+
+  <script src="./js/handlers/menuHandlers.js"></script>
+  <script src="./js/handlers/premiumHandlers.js"></script>
+  <script src="./js/handlers/starsHandlers.js"></script>
+  <script src="./js/handlers/paymentHandlers.js"></script>
+  <script src="./js/handlers/profileHandlers.js"></script>
+  <script src="./js/handlers/adminHandlers.js"></script>
+
+  <script src="./js/app.js"></script>
 </body>
 </html>
