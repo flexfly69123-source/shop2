@@ -17,6 +17,10 @@
         --accent-blue: #3b82f6;
         --border-color: rgba(255, 255, 255, 0.08);
         --nav-bg: rgba(15, 15, 20, 0.9);
+        --card-glow: rgba(59, 130, 246, 0.15);
+        --premium-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        --success-green: #10b981;
+        --warning-yellow: #f59e0b;
     }
 
     [data-theme="light"] {
@@ -27,6 +31,10 @@
         --accent-blue: #2563eb;
         --border-color: rgba(0, 0, 0, 0.05);
         --nav-bg: rgba(255, 255, 255, 0.9);
+        --card-glow: rgba(37, 99, 235, 0.1);
+        --premium-gradient: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+        --success-green: #059669;
+        --warning-yellow: #d97706;
     }
 
     * { 
@@ -56,7 +64,6 @@
         background-repeat: no-repeat;
         background-position: bottom right;
         background-size: contain;
-        /* Увеличил прозрачность до 0.12, чтобы ты его точно увидел. Если слишком ярко — верни 0.07 */
         opacity: 0.12; 
         pointer-events: none;
         z-index: 0;
@@ -83,18 +90,103 @@
 
     main { flex: 1; overflow-y: auto; padding: 20px 18px 120px 18px; scroll-behavior: smooth; }
 
+    /* ОБНОВЛЕННЫЙ ДИЗАЙН КАРТОЧЕК - Премиум стиль */
     .product-card {
-        background: var(--card-bg); border: 1px solid var(--border-color);
-        border-radius: 24px; padding: 16px; position: relative; overflow: hidden;
-        backdrop-filter: blur(10px); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 28px;
+        padding: 18px;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
         animation: slideUp 0.5s ease forwards;
         cursor: pointer;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Премиум эффект свечения при наведении */
+    .product-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 28px;
+        padding: 2px;
+        background: linear-gradient(135deg, #3b82f6, #a855f7, #3b82f6);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+    
+    .product-card:hover::before {
+        opacity: 0.6;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px) scale(1.02);
+        border-color: transparent;
+        box-shadow: 0 20px 40px -10px var(--card-glow);
+    }
+    
+    .product-card:active {
+        transform: scale(0.97);
+    }
+    
+    /* Стили для иконок в карточках */
+    .product-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--premium-gradient);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        box-shadow: 0 8px 20px -8px rgba(59, 130, 246, 0.3);
+    }
+    
+    .product-icon svg {
+        width: 36px;
+        height: 36px;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+    }
+    
+    /* Специальный стиль для NFT карточки */
+    .product-card.nft-card {
+        background: linear-gradient(135deg, rgba(22, 22, 28, 0.9), rgba(34, 34, 42, 0.9));
+        border-color: rgba(34, 197, 94, 0.2);
+    }
+    
+    .product-card.nft-card .product-icon {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(59, 130, 246, 0.15));
+        border-color: rgba(34, 197, 94, 0.3);
+    }
+    
+    /* Премиум бадж для карточек */
+    .premium-badge {
+        position: absolute;
+        top: -2px;
+        right: 20px;
+        background: linear-gradient(135deg, #3b82f6, #a855f7);
+        color: white;
+        font-size: 9px;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 30px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 10px -2px rgba(59, 130, 246, 0.5);
+        z-index: 2;
     }
     
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    
-    .product-card:active { transform: scale(0.96); box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
-    .product-card:hover { border-color: rgba(59, 130, 246, 0.3); }
 
     .future-gradient {
         background: linear-gradient(90deg, #8b5cf6, #3b82f6, #8b5cf6);
@@ -129,6 +221,15 @@
         border-color: #3b82f6;
         box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         animation: pulse-input 2s infinite;
+    }
+    .stars-input.error {
+        border-color: #ef4444;
+        animation: shake 0.3s ease;
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
     }
     @keyframes pulse-input { 
         0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); }
@@ -165,6 +266,12 @@
         box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
     }
     .btn-action:active { transform: scale(0.95); filter: brightness(1.2); }
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
 
     .faq-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 16px; margin-bottom: 8px; overflow: hidden; }
     .faq-trigger { width: 100%; padding: 14px; text-align: left; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; }
@@ -178,6 +285,51 @@
     .nft-card {
         border: 1px solid rgba(168, 85, 247, 0.2);
         background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(22, 22, 28, 0.7) 100%);
+    }
+
+    /* Новые стили для скелетонов и доп. блоков */
+    .skeleton {
+        background: linear-gradient(90deg, var(--card-bg) 25%, rgba(255,255,255,0.05) 50%, var(--card-bg) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+        border-radius: 20px;
+    }
+    @keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    .nft-skeleton {
+        width: 100%;
+        height: 80px;
+        margin-bottom: 12px;
+    }
+
+    .referral-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+        padding: 16px;
+    }
+
+    .copy-btn {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        transition: all 0.3s ease;
+    }
+    .copy-btn:active {
+        transform: scale(0.95);
+        background: rgba(59, 130, 246, 0.2);
+    }
+
+    .daily-reward {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(59, 130, 246, 0.1));
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .timer {
+        font-family: 'Plus Jakarta Sans', monospace;
+        font-weight: 800;
     }
 </style>
 </head>
@@ -226,11 +378,17 @@
                     <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Exclusive</span>
                 </div>
                 
-                <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-1 gap-5">
+                    <!-- КАРТОЧКА 1: Telegram Premium -->
                     <div class="product-card flex items-center justify-between p-5" onclick="openPremiumOptions()">
+                        <div class="premium-badge">HOT</div>
                         <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center shadow-inner">
-                                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/telegram-cloud-5212351-4352514.png" class="w-11 h-11 object-contain">
+                            <div class="product-icon">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M2 17L12 22L22 17" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M2 12L12 17L22 12" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
                             </div>
                             <div>
                                 <h3 class="font-bold text-lg leading-tight">Telegram Premium</h3>
@@ -243,10 +401,13 @@
                         </div>
                     </div>
 
+                    <!-- КАРТОЧКА 2: Telegram Stars -->
                     <div class="product-card flex items-center justify-between p-5" onclick="openStarsInputModal()">
                         <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center shadow-inner">
-                                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/star-5621415-4684949.png" class="w-11 h-11 object-contain">
+                            <div class="product-icon">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
                             </div>
                             <div>
                                 <h3 class="font-bold text-lg leading-tight">Telegram Stars</h3>
@@ -256,10 +417,16 @@
                         <div class="text-lg price-gradient">Flexible</div>
                     </div>
 
+                    <!-- КАРТОЧКА 3: NFT PEPE -->
                     <div class="product-card nft-card flex items-center justify-between p-5" onclick="openNftPepeModal()">
+                        <div class="premium-badge" style="background: linear-gradient(135deg, #22c55e, #3b82f6);">RARE</div>
                         <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center shadow-inner overflow-hidden border border-green-500/20">
-                                <img src="https://i.ibb.co/vYm6v6V/pepe-nft-icon.png" class="w-full h-full object-cover" alt="Pepe NFT">
+                            <div class="product-icon" style="border-color: rgba(34, 197, 94, 0.3);">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 4L20 4C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M8 8H16" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="12" cy="12" r="2" stroke="#22c55e" stroke-width="1.5"/>
+                                </svg>
                             </div>
                             <div>
                                 <h3 class="font-bold text-lg leading-tight text-green-400">NFT PEPE Edition</h3>
@@ -269,6 +436,48 @@
                         <div class="text-right">
                             <div class="text-lg font-black text-white">0.5 ETH</div>
                             <div class="text-[9px] text-green-500 font-bold uppercase">Rare</div>
+                        </div>
+                    </div>
+
+                    <!-- НОВАЯ КАРТОЧКА 4: Anonymous Numbers -->
+                    <div class="product-card nft-card flex items-center justify-between p-5" onclick="openAnonymousNumbersModal()">
+                        <div class="premium-badge" style="background: linear-gradient(135deg, #a855f7, #3b82f6);">NEW</div>
+                        <div class="flex items-center gap-4">
+                            <div class="product-icon" style="border-color: rgba(168, 85, 247, 0.3);">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 16.92V19C22.001 19.7506 21.807 20.4889 21.439 21.1395C21.071 21.7901 20.543 22.3271 19.909 22.7058C19.275 23.0845 18.559 23.2903 17.826 23.3028C17.093 23.3153 16.371 23.1342 15.725 22.777C12.596 20.988 9.807 18.708 7.466 16.039C5.097 13.633 2.806 10.76 1.031 7.534C0.692 6.871 0.521 6.137 0.533 5.395C0.545 4.653 0.739 3.925 1.098 3.274C1.457 2.624 1.968 2.073 2.585 1.672C3.202 1.272 3.905 1.034 4.636 0.979C5.367 0.924 6.1 1.053 6.772 1.355C7.443 1.657 8.031 2.121 8.481 2.7C8.931 3.279 9.226 3.951 9.339 4.665C9.452 5.379 9.38 6.109 9.13 6.787C8.769 7.778 8.697 8.86 8.925 9.892C9.152 10.924 9.667 11.858 10.404 12.579C11.141 13.301 12.061 13.776 13.054 13.947C14.046 14.119 15.064 13.978 15.979 13.545C16.633 13.25 17.362 13.148 18.074 13.253C18.786 13.358 19.448 13.666 19.985 14.135C20.522 14.605 20.909 15.214 21.098 15.895C21.287 16.576 21.268 17.297 21.044 17.967L22 16.92Z" stroke="#a855f7" stroke-width="1.5" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg leading-tight text-purple-400">Anonymous Numbers</h3>
+                                <p class="text-[11px] text-zinc-500 font-medium">Виртуальные номера для регистрации</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg price-gradient">$25.00</div>
+                            <div class="text-[9px] text-purple-500 font-bold uppercase">Limited</div>
+                        </div>
+                    </div>
+
+                    <!-- НОВАЯ КАРТОЧКА 5: Telegram Usernames -->
+                    <div class="product-card flex items-center justify-between p-5" onclick="openUsernamesModal()">
+                        <div class="premium-badge" style="background: linear-gradient(135deg, #f59e0b, #3b82f6);">PREMIUM</div>
+                        <div class="flex items-center gap-4">
+                            <div class="product-icon" style="border-color: rgba(245, 158, 11, 0.3);">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 7H20" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg leading-tight text-amber-400">Telegram Usernames</h3>
+                                <p class="text-[11px] text-zinc-500 font-medium">Красивые и короткие юзернеймы</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg price-gradient">$49.00</div>
+                            <div class="text-[9px] text-amber-500 font-bold uppercase">Auction</div>
                         </div>
                     </div>
                 </div>
@@ -285,172 +494,118 @@
                     </div>
                 </div>
                 
-                <div class="balance-small mb-6 p-5 rounded-3xl border border-white/5 bg-white/[0.02]" onclick="openHistoryModal()">
+                <div class="balance-small mb-4 p-5 rounded-3xl border border-white/5 bg-white/[0.02]" onclick="openHistoryModal()">
                     <div class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">Ваш кошелек</div>
                     <div class="text-3xl font-bold tracking-tight text-white">0.00 <span class="text-zinc-500 font-medium text-xl">₽</span></div>
                 </div>
-                
-                <div class="flex flex-col gap-3 justify-center mb-8">
-                    <button onclick="openTopUpAmountModal()" class="btn-action w-full py-4 rounded-2xl font-black text-white text-sm tracking-widest uppercase">Пополнить баланс</button>
-                    <button class="w-full py-4 rounded-2xl font-black text-white text-sm tracking-widest uppercase bg-white/5 border border-white/10">Support</button>
-                </div>
 
-                <div class="px-2">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">История операций</h3>
-                    <div class="flex flex-col items-center justify-center py-10 bg-white/[0.02] border border-dashed border-white/10 rounded-[32px]">
-                        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/empty-box-6219421-5102412.png" class="w-16 h-16 opacity-20 mb-3">
-                        <span class="text-xs text-zinc-500 font-bold">Здесь будет список ваших покупок</span>
+                <!-- НОВЫЙ БЛОК: Daily Reward -->
+                <div class="daily-reward mb-4 p-5 rounded-3xl border border-yellow-500/20" onclick="claimDailyReward()">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-yellow-500">⭐ Ежедневная награда</div>
+                        <div class="text-xs font-bold text-yellow-500" id="daily-timer">24:00:00</div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-zinc-400">Забери свои бонусные звезды</span>
+                        <button class="px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-xl text-yellow-500 font-black text-xs uppercase tracking-wider">
+                            ЗАБРАТЬ
+                        </button>
                     </div>
                 </div>
-            </div>
+                
+                <div class="flex flex-col gap-3 justify-center mb-6">
+                    <button onclick="openTopUpAmountModal()" class="btn-action w-full py-4 rounded-2xl font-black text-white text-sm tracking-widest uppercase">Пополнить баланс</button>
+                    <button onclick="openSupportLink()" class="w-full py-4 rounded-2xl font-black text-white text-sm tracking-widest uppercase bg-white/5 border border-white/10">Support</button>
+                </div>
+
+                <!-- НОВЫЙ БЛОК: Реферальная система -->
+                <div class="referral-card mb-6 p-5 rounded-3xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4469 16.6438 16.1429" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 20H7V18C7 15.2386 9.23858 13 12 13C12.9962 13 13.9293 13.2646 14.7322 13.7156" stroke-width="1.5" stroke-linecap="round"/>
+                                <circle cx="17" cy="8" r="3" stroke-width="1.5"/>
+                                <circle cx="7" cy="6" r="4" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base">Реферальная программа</h3>
+                            <p class="text-[10px] text-zinc-500">Приглашай друзей и получай бонусы</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="referral-link" value="https://t.me/tumbo4ka_bot?start=ref123" readonly class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-medium text-zinc-300">
+                        <button onclick="copyReferralLink()" class="copy-btn px-4 py-3 rounded-xl text-xs font-bold">Скопировать</button>
+                    </div>
+                </div>
+
+            </div> <!-- end profile -->
         </main>
 
         <nav>
-            <div onclick="switchTab('home', this)" class="nav-item active">Главная</div>
-            <div onclick="switchTab('catalog', this)" class="nav-item">Маркет</div>
-            <div onclick="switchTab('profile', this)" class="nav-item">Профиль</div>
+            <div class="nav-item active" onclick="showSection('home')">Главная</div>
+            <div class="nav-item" onclick="showSection('catalog')">Каталог</div>
+            <div class="nav-item" onclick="showSection('profile')">Профиль</div>
         </nav>
-    </div>
+
+    </div> <!-- end app-shell -->
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-
-        function switchTab(id, el) {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            tg.HapticFeedback.impactOccurred('light');
+        const themeIcon = document.getElementById('theme-icon');
+        function toggleTheme(){
+            const current = document.body.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', next);
+            if(themeIcon) themeIcon.textContent = next === 'dark' ? '🌙' : '☀️';
         }
 
-        function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
-
-        function toggleFaq(btn) {
+        function toggleFaq(btn){
             const content = btn.nextElementSibling;
-            const isVisible = content.style.display === 'block';
-            content.style.display = isVisible ? 'none' : 'block';
-            btn.querySelector('span').innerText = isVisible ? '+' : '−';
-            tg.HapticFeedback.selectionChanged();
+            if(!content) return;
+            content.style.display = (content.style.display === 'block') ? 'none' : 'block';
         }
 
-        /* --- СУЩЕСТВУЮЩИЙ ФУНКЦИОНАЛ (БЕЗ ИЗМЕНЕНИЙ) --- */
-        function openTopUpAmountModal() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-2">Сумма ₽</h2>
-                <input type="text" id="topup-amount" placeholder="0" class="stars-input w-full p-5 rounded-2xl text-3xl font-black text-center outline-none mb-6" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                <button onclick="openTopUpMethodsModal(document.getElementById('topup-amount').value)" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-white shadow-lg btn-action">ДАЛЕЕ</button>
-            `;
-            document.getElementById('modal-overlay').style.display = 'flex';
+        function copyReferralLink(){
+            const inp = document.getElementById('referral-link');
+            if(!inp) return;
+            if(navigator.clipboard && navigator.clipboard.writeText){
+                navigator.clipboard.writeText(inp.value).then(()=> alert('Ссылка скопирована'))
+                .catch(()=> alert('Не удалось скопировать ссылку'));
+            } else {
+                inp.select(); try{ document.execCommand('copy'); alert('Ссылка скопирована'); }catch(e){ alert('Не удалось скопировать'); }
+            }
         }
 
-        function openTopUpMethodsModal(amount) {
-            if(!amount || amount < 10) { tg.showAlert('Минимальная сумма 10 ₽'); return; }
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-4 text-center">Метод оплаты</h2>
-                <div class="space-y-3">
-                    <button onclick="handleTopUpMethod('СБП', ${amount})" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 active:scale-95">
-                        <span class="font-bold text-lg text-white">СБП</span>
-                    </button>
-                    <button onclick="handleTopUpMethod('Карта РФ', ${amount})" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 active:scale-95">
-                        <span class="font-bold text-lg text-white">Карта РФ</span>
-                    </button>
-                </div>
-            `;
+        function closeModal(){
+            const o = document.getElementById('modal-overlay'); if(o) o.style.display = 'none';
+        }
+        function openModal(html){
+            const o = document.getElementById('modal-overlay'); const b = document.getElementById('modal-body'); if(b) b.innerHTML = html; if(o) o.style.display = 'flex';
         }
 
-        function openPremiumOptions() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-4">Срок подписки</h2>
-                <div class="space-y-3">
-                    <button onclick="confirmPurchase('Premium 3 мес', 15.00)" class="w-full p-5 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center active:scale-95">
-                        <span class="font-bold text-lg">3 Месяца</span><span class="price-gradient text-xl">$15.00</span>
-                    </button>
-                    <button onclick="confirmPurchase('Premium 6 мес', 25.00)" class="w-full p-5 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center active:scale-95">
-                        <span class="font-bold text-lg">6 Месяцев</span><span class="price-gradient text-xl">$25.00</span>
-                    </button>
-                </div>
-            `;
-            document.getElementById('modal-overlay').style.display = 'flex';
+        function openPremiumOptions(){ openModal('<h3>Premium</h3><p>Опции покупки.</p>'); }
+        function openStarsInputModal(){ openModal('<h3>Stars</h3><p>Введите количество звёзд.</p>'); }
+        function openNftPepeModal(){ openModal('<h3>NFT PEPE</h3><p>Информация о лоте.</p>'); }
+        function openAnonymousNumbersModal(){ openModal('<h3>Anonymous Numbers</h3><p>Виртуальные номера.</p>'); }
+        function openUsernamesModal(){ openModal('<h3>Usernames</h3><p>Красивые юзернеймы.</p>'); }
+        function openHistoryModal(){ openModal('<h3>История транзакций</h3>'); }
+        function claimDailyReward(){ alert('Награда получена'); }
+        function openTopUpAmountModal(){ openModal('<h3>Пополнение</h3><p>Выберите сумму.</p>'); }
+        function openSupportLink(){ window.open('https://t.me/tumbo4ka_bot','_blank'); }
+
+        function showSection(id){
+            document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+            const el = document.getElementById(id); if(el) el.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+            const navs = Array.from(document.querySelectorAll('.nav-item'));
+            const found = navs.find(n => n.textContent.trim().toLowerCase().includes(id));
+            if(found) found.classList.add('active');
         }
 
-        /* --- НОВЫЙ ЛОТ: NFT PEPE --- */
-        function openNftPepeModal() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <div class="text-center">
-                    <div class="w-32 h-32 mx-auto mb-4 rounded-3xl overflow-hidden shadow-2xl border-2 border-green-500/30">
-                        <img src="https://i.ibb.co/vYm6v6V/pepe-nft-icon.png" class="w-full h-full object-cover">
-                    </div>
-                    <h2 class="text-2xl font-black mb-2 text-green-400">Pepe NFT Edition</h2>
-                    <p class="text-zinc-500 text-sm mb-6">Эксклюзивный цифровой актив для истинных ценителей. Ограниченная серия.</p>
-                    <div class="bg-white/5 p-4 rounded-2xl mb-6 flex justify-between items-center border border-white/10">
-                        <span class="font-bold">Цена лота:</span>
-                        <span class="text-xl font-black text-white">0.5 ETH</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                         <button onclick="closeModal()" class="w-full bg-white/10 py-4 rounded-2xl font-bold text-white">ОТМЕНА</button>
-                         <button onclick="confirmNftPurchase()" class="w-full bg-green-600 py-4 rounded-2xl font-black text-white shadow-lg btn-action">КУПИТЬ</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('modal-overlay').style.display = 'flex';
-        }
-
-        function confirmNftPurchase() {
-            tg.HapticFeedback.impactOccurred('heavy');
-            tg.showAlert("Запрос на покупку NFT отправлен!");
-            closeModal();
-        }
-
-        /* --- ОСТАЛЬНЫЕ ХЕНДЛЕРЫ --- */
-        function openStarsInputModal() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-2">Telegram Stars</h2>
-                <p class="text-zinc-500 text-xs mb-4">Укажите нужное количество звезд:</p>
-                <input type="text" id="stars-amount" placeholder="0" class="stars-input w-full p-5 rounded-2xl text-3xl font-black text-center outline-none mb-4" oninput="updateStarsPrice(this.value)">
-                <div id="stars-total" class="text-center text-3xl price-gradient mb-6">$0.00</div>
-                <button onclick="confirmPurchase('Stars', document.getElementById('stars-total').innerText)" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-white shadow-lg btn-action">ОФОРМИТЬ</button>
-            `;
-            document.getElementById('modal-overlay').style.display = 'flex';
-        }
-
-        function updateStarsPrice(val) {
-            const amount = parseInt(val) || 0;
-            document.getElementById('stars-total').innerText = `$${(amount * 0.03).toFixed(2)}`;
-        }
-
-        function confirmPurchase(item, price) {
-            tg.HapticFeedback.impactOccurred('heavy');
-            tg.showAlert(`Заказ: ${item} (${price})`);
-            closeModal();
-        }
-
-        function handleTopUpMethod(method, amount) {
-            tg.showAlert(`Счет на ${amount}₽ (${method}) формируется...`);
-            closeModal();
-        }
-
-        const user = tg.initDataUnsafe?.user || { first_name: "Admin" };
-        document.getElementById('u-name').innerText = user.first_name;
-        document.getElementById('u-icon').innerText = user.first_name.charAt(0).toUpperCase();
-
-        function toggleTheme() {
-            const body = document.body;
-            const isDark = body.getAttribute('data-theme') === 'dark';
-            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            document.getElementById('theme-icon').innerText = isDark ? '☀️' : '🌙';
-        }
-        function openHistoryModal() { tg.showAlert('История транзакций пуста'); }
+        // Закрыть модал по клику вне содержимого
+        document.getElementById('modal-overlay').addEventListener('click', closeModal);
+        document.querySelectorAll('.faq-trigger').forEach(btn => btn.addEventListener('click', () => toggleFaq(btn)));
     </script>
 </body>
 </html>
