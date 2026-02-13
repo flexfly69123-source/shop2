@@ -33,7 +33,7 @@
             -webkit-tap-highlight-color: transparent; 
             user-select: none; 
             box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
@@ -59,27 +59,35 @@
 
         main { flex: 1; overflow-y: auto; padding: 20px 18px 120px 18px; scroll-behavior: smooth; }
 
+        /* АНИМАЦИИ КАРТОЧЕК */
         .product-card {
             background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 24px; padding: 16px; position: relative; overflow: hidden;
             backdrop-filter: blur(10px); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            animation: slideUp 0.5s ease forwards;
         }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
         .product-card:active { transform: scale(0.96); }
 
-        .balance-container {
-            background: linear-gradient(145deg, rgba(59, 130, 246, 0.15) 0%, rgba(255,255,255,0.02) 100%);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 28px; padding: 24px; position: relative; overflow: hidden;
-            backdrop-filter: blur(15px); cursor: pointer;
+        /* ГРАДИЕНТ ДЛЯ "БУДУЩЕЕ" */
+        .future-gradient {
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6, #8b5cf6);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine-text 3s linear infinite;
         }
-        .balance-container:active { transform: scale(0.98); }
 
-        .btn-profile {
-            background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 12px 20px; font-size: 13px;
-            font-weight: 700; flex: 1; text-align: center; cursor: pointer;
+        /* ЦЕННИКИ С ПЕРЕЛИВОМ */
+        .price-gradient {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine-text 2s linear infinite;
+            font-weight: 900;
         }
-        .btn-profile:active { transform: scale(0.95); opacity: 0.8; }
 
         .text-gradient {
             background: linear-gradient(90deg, #3b82f6, #a855f7, #3b82f6);
@@ -88,6 +96,21 @@
         }
         @keyframes shine-text { to { background-position: 200% center; } }
 
+        /* ИНПУТ ДЛЯ STARS */
+        .stars-input {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .stars-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            animation: pulse-input 2s infinite;
+        }
+        @keyframes pulse-input { 
+            0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); }
+        }
+
         nav {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             width: calc(100% - 40px); height: 65px; background: var(--nav-bg);
@@ -95,27 +118,23 @@
             border-radius: 24px; display: flex; justify-content: space-around; align-items: center; z-index: 1000;
         }
         .nav-item { color: var(--text-dim); font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
-        .nav-item.active { color: var(--accent-blue); }
+        .nav-item.active { color: var(--accent-blue); transform: scale(1.1); }
 
-        .section { display: none; opacity: 0; animation: fadeIn 0.4s forwards; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .section { display: none; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
+        .section.active { display: block; opacity: 1; transform: translateY(0); }
 
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(12px); z-index: 2000; display: none;
             align-items: center; justify-content: center; padding: 20px;
+            animation: fadeIn 0.3s ease;
         }
         .modal-content {
             background: var(--bg-color); border: 1px solid var(--border-color);
             width: 100%; max-width: 400px; border-radius: 32px; padding: 24px;
-            position: relative;
+            position: relative; animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
         }
-        
-        .search-bar {
-            background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);
-            border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; gap: 12px;
-        }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body data-theme="dark">
@@ -140,60 +159,42 @@
         <main id="main-scroll">
             <div id="home" class="section active">
                 <div class="relative overflow-hidden rounded-[32px] p-8 mb-8 bg-gradient-to-br from-blue-600/20 to-transparent border border-white/5">
-                    <h2 class="text-4xl font-black mb-2 leading-tight">Добро пожаловать в будущее</h2>
+                    <h2 class="text-4xl font-black mb-2 leading-tight">Добро пожаловать в <span class="future-gradient">будущее</span></h2>
                     <p class="text-sm text-zinc-400">Премиальный доступ к лучшим нейросетям мира в одном месте.</p>
                 </div>
             </div>
 
             <div id="catalog" class="section">
                 <div class="flex justify-between items-end mb-6 px-2">
-                    <h1 class="text-2xl font-extrabold text-gradient">Каталог лотов</h1>
+                    <h1 class="text-2xl font-extrabold text-gradient">Магазин</h1>
                     <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Premium Selection</span>
                 </div>
                 
                 <div class="grid grid-cols-1 gap-4">
-                    <div class="product-card flex items-center justify-between p-5" onclick="openStarsModal('Telegram Stars', 1.50)">
+                    <div class="product-card flex items-center justify-between p-5" onclick="openPremiumOptions()">
                         <div class="flex items-center gap-4">
-                            <img src="https://img.icons8.com/fluency/144/star--v1.png" class="w-12 h-12">
+                            <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
+                                <img src="https://img.icons8.com/fluency/144/diamond--v1.png" class="w-10 h-10">
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Telegram Premium</h3>
+                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Подписка гифтом</div>
+                            </div>
+                        </div>
+                        <div class="text-xl price-gradient">от $15.00</div>
+                    </div>
+
+                    <div class="product-card flex items-center justify-between p-5" onclick="openStarsInputModal()">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center">
+                                <img src="https://img.icons8.com/fluency/144/star--v1.png" class="w-10 h-10">
+                            </div>
                             <div>
                                 <h3 class="font-bold text-lg">Telegram Stars</h3>
                                 <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Любое количество</div>
                             </div>
                         </div>
-                        <div class="text-xl font-black text-blue-500">от $1.50</div>
-                    </div>
-
-                    <div class="product-card flex items-center justify-between p-5" onclick="openPurchaseModal('Premium 3 Месяца', 15.00)">
-                        <div class="flex items-center gap-4">
-                            <img src="https://img.icons8.com/fluency/144/diamond--v1.png" class="w-12 h-12">
-                            <div>
-                                <h3 class="font-bold text-lg">Premium 3 мес.</h3>
-                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Гифт ссылка</div>
-                            </div>
-                        </div>
-                        <div class="text-xl font-black text-blue-500">$15.00</div>
-                    </div>
-
-                    <div class="product-card flex items-center justify-between p-5" onclick="openPurchaseModal('Premium 6 Месяцев', 25.00)">
-                        <div class="flex items-center gap-4">
-                            <img src="https://img.icons8.com/fluency/144/diamond--v1.png" class="w-12 h-12">
-                            <div>
-                                <h3 class="font-bold text-lg">Premium 6 мес.</h3>
-                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Выгодный план</div>
-                            </div>
-                        </div>
-                        <div class="text-xl font-black text-blue-500">$25.00</div>
-                    </div>
-
-                    <div class="product-card flex items-center justify-between p-5" onclick="openPurchaseModal('Premium 12 Месяцев', 45.00)">
-                        <div class="flex items-center gap-4">
-                            <img src="https://img.icons8.com/fluency/144/diamond--v1.png" class="w-12 h-12">
-                            <div>
-                                <h3 class="font-bold text-lg">Premium 12 мес.</h3>
-                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Максимум выгоды</div>
-                            </div>
-                        </div>
-                        <div class="text-xl font-black text-blue-500">$45.00</div>
+                        <div class="text-xl price-gradient">гибкая цена</div>
                     </div>
                 </div>
             </div>
@@ -201,64 +202,18 @@
             <div id="profile" class="section">
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-lg shadow-blue-500/20" id="u-icon">?</div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white" id="u-icon">?</div>
                         <div>
                             <div class="text-2xl font-black" id="u-name">User</div>
-                            <div class="flex items-center gap-1">
-                                <span class="text-xs text-zinc-500 font-bold">5.0</span>
-                                <span class="text-[10px] text-blue-500">⭐⭐⭐⭐⭐</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div onclick="handleReferrals()" class="w-11 h-11 bg-white/5 rounded-xl flex items-center justify-center text-blue-500 cursor-pointer active:scale-90 transition-transform border border-white/5">
-                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
-                        </div>
-                        <div onclick="handleSettings()" class="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center text-white cursor-pointer active:scale-90 transition-transform shadow-lg shadow-blue-600/20">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                            <div class="text-[10px] text-blue-500">⭐⭐⭐⭐⭐ 5.0</div>
                         </div>
                     </div>
                 </div>
-
-                <div class="balance-container mb-6" onclick="openHistoryModal()">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-5">
-                            <div class="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
-                                <img src="https://img.icons8.com/fluency/96/wallet.png" class="w-9 h-9" alt="Кошелек">
-                            </div>
-                            <div>
-                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Твой баланс</div>
-                                <div class="text-4xl font-black">0 ₽</div>
-                            </div>
-                        </div>
-                        <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center">
-                            <img src="https://img.icons8.com/ios-glyphs/90/ffffff/historical.png" class="w-5 h-5 opacity-50">
-                        </div>
-                    </div>
+                <div class="balance-container mb-6 p-6 bg-white/5 rounded-[28px] border border-white/5" onclick="openHistoryModal()">
+                    <div class="text-[10px] text-zinc-500 font-bold uppercase mb-1">Баланс</div>
+                    <div class="text-4xl font-black">0 ₽</div>
                 </div>
-
-                <button onclick="handleTopUp()" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[22px] font-black text-white shadow-lg shadow-blue-500/25 mb-4 transition-all active:scale-[0.98]">
-                    ПОПОЛНИТЬ БАЛАНС
-                </button>
-
-                <div class="flex gap-3 mb-8">
-                    <div onclick="handleBonuses()" class="btn-profile relative bg-zinc-900/50">
-                        Бонусный центр
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-[8px] px-2 py-0.5 rounded-full text-white font-black">NEW</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-2 mb-4">
-                    <div onclick="filterProducts('all', this)" class="filter-btn btn-profile bg-blue-600 border-none text-white">Все товары</div>
-                    <div onclick="filterProducts('bought', this)" class="filter-btn btn-profile bg-zinc-800/50 border-none text-zinc-400">Мои покупки</div>
-                </div>
-
-                <div class="search-bar">
-                    <span class="text-blue-500">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    </span>
-                    <input type="text" placeholder="Поиск по инвентарю" class="bg-transparent border-none outline-none text-sm text-zinc-300 w-full font-semibold">
-                </div>
+                <button onclick="handleTopUp()" class="w-full bg-blue-600 py-5 rounded-[22px] font-black text-white shadow-lg mb-4">ПОПОЛНИТЬ</button>
             </div>
         </main>
 
@@ -272,19 +227,6 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.expand();
-
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.setAttribute('data-theme', 'light');
-                icon.innerText = '☀️';
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                icon.innerText = '🌙';
-            }
-        }
 
         function switchTab(id, el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -296,148 +238,80 @@
 
         function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 
-        // Обновленный модал для Звезд с выбором
-        function openStarsModal(title, basePrice) {
+        // ПРЕМИУМ ВЫБОР
+        function openPremiumOptions() {
             tg.HapticFeedback.impactOccurred('medium');
-            const overlay = document.getElementById('modal-overlay');
             const body = document.getElementById('modal-body');
             body.innerHTML = `
-                <h2 class="text-2xl font-black mb-2">${title}</h2>
-                <p class="text-zinc-500 text-xs mb-6">Выберите количество звезд для мгновенного пополнения:</p>
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <button onclick="updateStars(50, 1.50)" class="bg-white/5 border border-white/10 p-3 rounded-xl font-bold hover:border-blue-500">50 ⭐</button>
-                    <button onclick="updateStars(100, 3.00)" class="bg-white/5 border border-white/10 p-3 rounded-xl font-bold hover:border-blue-500">100 ⭐</button>
-                    <button onclick="updateStars(250, 7.00)" class="bg-white/5 border border-white/10 p-3 rounded-xl font-bold hover:border-blue-500">250 ⭐</button>
-                    <button onclick="updateStars(500, 13.50)" class="bg-white/5 border border-white/10 p-3 rounded-xl font-bold hover:border-blue-500">500 ⭐</button>
+                <h2 class="text-2xl font-black mb-4">Выберите срок</h2>
+                <div class="space-y-3">
+                    <button onclick="confirmPurchase('Premium 3 мес', 15.00)" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center hover:border-blue-500 transition-all">
+                        <span class="font-bold">3 Месяца</span>
+                        <span class="price-gradient text-lg">$15.00</span>
+                    </button>
+                    <button onclick="confirmPurchase('Premium 6 мес', 25.00)" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center hover:border-blue-500 transition-all">
+                        <span class="font-bold">6 Месяцев</span>
+                        <span class="price-gradient text-lg">$25.00</span>
+                    </button>
+                    <button onclick="confirmPurchase('Premium 12 мес', 45.00)" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center hover:border-blue-500 transition-all">
+                        <span class="font-bold">12 Месяцев</span>
+                        <span class="price-gradient text-lg">$45.00</span>
+                    </button>
                 </div>
-                <div class="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5">
-                    <span class="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">Итого:</span>
-                    <span id="star-price" class="text-3xl font-black text-blue-500">$1.50</span>
-                </div>
-                <button onclick="closeModal()" class="w-full bg-blue-600 py-4 rounded-2xl mt-6 font-black text-white shadow-lg">КУПИТЬ СЕЙЧАС</button>
             `;
-            overlay.style.display = 'flex';
+            document.getElementById('modal-overlay').style.display = 'flex';
         }
 
-        function updateStars(count, price) {
-            document.getElementById('star-price').innerText = `$${price.toFixed(2)}`;
+        // ЗВЕЗДЫ ВВОД
+        function openStarsInputModal() {
+            tg.HapticFeedback.impactOccurred('medium');
+            const body = document.getElementById('modal-body');
+            body.innerHTML = `
+                <h2 class="text-2xl font-black mb-2">Telegram Stars</h2>
+                <p class="text-zinc-500 text-xs mb-6">Введите нужное количество звезд:</p>
+                <div class="relative mb-6">
+                    <input type="text" id="stars-amount" placeholder="0" 
+                        class="stars-input w-full p-5 rounded-2xl text-3xl font-black text-center outline-none"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateStarsPrice(this.value)">
+                    <div class="absolute right-6 top-1/2 -translate-y-1/2 text-yellow-500 font-bold">⭐</div>
+                </div>
+                <div class="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5 mb-6">
+                    <span class="text-zinc-400 font-bold uppercase text-[10px]">К оплате:</span>
+                    <span id="stars-total" class="text-2xl price-gradient">$0.00</span>
+                </div>
+                <button onclick="confirmPurchase('Stars', document.getElementById('stars-total').innerText)" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-white shadow-lg">КУПИТЬ</button>
+            `;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function updateStarsPrice(val) {
+            const amount = parseInt(val) || 0;
+            const price = amount * 0.03; // Пример курса: 1 звезда = 0.03$
+            document.getElementById('stars-total').innerText = `$${price.toFixed(2)}`;
             tg.HapticFeedback.selectionChanged();
         }
 
-        function openPurchaseModal(title, price) {
-            tg.HapticFeedback.impactOccurred('medium');
-            const overlay = document.getElementById('modal-overlay');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-2">${title}</h2>
-                <div class="text-zinc-400 text-sm mb-6">Вы покупаете Premium статус для своего аккаунта. После оплаты вы получите уникальную ссылку для активации.</div>
-                <div class="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5">
-                    <span class="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">К оплате:</span>
-                    <span class="text-3xl font-black text-blue-500">$${price.toFixed(2)}</span>
-                </div>
-                <button onclick="closeModal()" class="w-full bg-blue-600 py-4 rounded-2xl mt-6 font-black text-white shadow-lg">КУПИТЬ СЕЙЧАС</button>
-            `;
-            overlay.style.display = 'flex';
-        }
-
-        // ХЕНДЛЕРЫ ПРОФИЛЯ
-        function handleReferrals() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const overlay = document.getElementById('modal-overlay');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-2">Рефералы</h2>
-                <div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl mb-6">
-                    <div class="text-[10px] text-blue-500 font-bold uppercase mb-1">Твоя ссылка:</div>
-                    <div class="text-xs font-mono break-all text-zinc-300">t.me/cursor_store_bot?start=ref12345</div>
-                </div>
-                <div class="space-y-3 mb-6">
-                    <div class="flex justify-between text-sm"><span class="text-zinc-500">Всего приглашено:</span><span class="font-bold text-white">0 чел.</span></div>
-                    <div class="flex justify-between text-sm"><span class="text-zinc-500">Заработано:</span><span class="font-bold text-green-500">0 ₽</span></div>
-                </div>
-                <button onclick="tg.showAlert('Ссылка скопирована!')" class="w-full bg-white/10 py-3 rounded-xl font-bold mb-2">Скопировать ссылку</button>
-                <button onclick="closeModal()" class="w-full text-zinc-500 py-2 text-sm font-bold">Закрыть</button>
-            `;
-            overlay.style.display = 'flex';
-        }
-
-        function handleSettings() {
-            tg.HapticFeedback.impactOccurred('light');
-            const overlay = document.getElementById('modal-overlay');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-6">Настройки</h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
-                        <span class="font-bold">Уведомления</span>
-                        <div class="w-10 h-6 bg-blue-600 rounded-full flex items-center px-1"><div class="w-4 h-4 bg-white rounded-full ml-auto"></div></div>
-                    </div>
-                    <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
-                        <span class="font-bold">Язык приложения</span>
-                        <span class="text-blue-500 font-bold">Русский</span>
-                    </div>
-                </div>
-                <button onclick="closeModal()" class="w-full bg-blue-600 py-4 rounded-2xl mt-8 font-black text-white">СОХРАНИТЬ</button>
-            `;
-            overlay.style.display = 'flex';
-        }
-
-        function handleTopUp() { 
+        function confirmPurchase(item, price) {
             tg.HapticFeedback.impactOccurred('heavy');
-            const overlay = document.getElementById('modal-overlay');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <h2 class="text-2xl font-black mb-4">Пополнение</h2>
-                <div class="grid grid-cols-1 gap-3 mb-6">
-                    <button class="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl font-bold">
-                        <img src="https://img.icons8.com/color/48/visa.png" class="w-8"> Банковская карта
-                    </button>
-                    <button class="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl font-bold">
-                        <img src="https://img.icons8.com/color/48/tether.png" class="w-8"> Crypto (USDT)
-                    </button>
-                </div>
-                <button onclick="closeModal()" class="w-full text-zinc-500 py-2 text-sm font-bold">Отмена</button>
-            `;
-            overlay.style.display = 'flex';
+            tg.showAlert(`Вы выбрали ${item} на сумму ${price}`);
+            closeModal();
         }
 
-        function handleBonuses() { 
-            tg.showAlert('Ваш бонусный баланс: 0. Выполняйте задания, чтобы получить бонусы!'); 
-        }
-
-        function openHistoryModal() {
-            const overlay = document.getElementById('modal-overlay');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-black">История транзакций</h2>
-                    <div onclick="closeModal()" class="text-zinc-500 text-xl cursor-pointer">✕</div>
-                </div>
-                <div class="py-12 text-center">
-                    <div class="text-zinc-500 font-bold mb-1">Тут пока пусто</div>
-                    <div class="text-[10px] uppercase text-zinc-600 tracking-widest">Здесь будут ваши покупки и пополнения</div>
-                </div>
-            `;
-            overlay.style.display = 'flex';
-        }
-
-        function filterProducts(type, el) { 
-            tg.HapticFeedback.selectionChanged();
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-zinc-800/50', 'text-zinc-400');
-            });
-            el.classList.remove('bg-zinc-800/50', 'text-zinc-400');
-            el.classList.add('bg-blue-600', 'text-white');
-            
-            if(type === 'bought') {
-                tg.showAlert('У вас пока нет покупок 🛍️');
-            }
-        }
-
+        // Базовая инициализация из старого кода
         const user = tg.initDataUnsafe?.user || { first_name: "Cursor" };
         document.getElementById('u-name').innerText = user.first_name;
         document.getElementById('u-icon').innerText = user.first_name.charAt(0).toUpperCase();
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            icon.innerText = isDark ? '☀️' : '🌙';
+        }
+
+        function handleTopUp() { tg.showAlert('Система оплаты в разработке 💳'); }
+        function openHistoryModal() { tg.showAlert('История пуста'); }
     </script>
 </body>
 </html>
