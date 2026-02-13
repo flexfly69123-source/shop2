@@ -53,6 +53,7 @@
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             z-index: 100;
+            position: relative;
         }
 
         .balance-pill {
@@ -63,7 +64,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
         }
 
         main {
@@ -73,7 +73,7 @@
             scroll-behavior: smooth;
         }
 
-        /* КАРТОЧКИ С АНИМАЦИЕЙ ПОЯВЛЕНИЯ */
+        /* КАРТОЧКИ */
         .product-card {
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -83,180 +83,81 @@
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
-            will-change: transform, opacity;
-            
-            /* Начальное состояние для анимации */
             opacity: 0;
+            z-index: 1;
+        }
+
+        /* Эффект блика */
+        .product-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .product-card:active::after {
+            left: 120%;
+        }
+
+        .product-card:active {
+            transform: scale(0.96);
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Применяем анимацию по умолчанию для первой загрузки */
-        .product-card {
-            animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        /* Задержки для эффекта очереди */
+        .product-card { animation: fadeInUp 0.6s forwards; }
         .product-card:nth-child(1) { animation-delay: 0.1s; }
         .product-card:nth-child(2) { animation-delay: 0.2s; }
         .product-card:nth-child(3) { animation-delay: 0.3s; }
 
-        .product-card:active {
-            transform: scale(0.96);
-            border-color: rgba(255, 255, 255, 0.3);
+        /* Градиентный текст */
+        .text-gradient {
+            background: linear-gradient(90deg, #3b82f6, #a855f7, #3b82f6);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine-text 3s linear infinite;
+        }
+
+        @keyframes shine-text {
+            to { background-position: 200% center; }
         }
 
         .img-wrapper {
-            width: 100%;
-            height: 150px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-            background: #121216;
-            transition: all 0.4s ease;
+            width: 100%; height: 150px; border-radius: 20px;
+            margin-bottom: 15px; display: flex; align-items: center;
+            justify-content: center; background: #121216; overflow: hidden;
         }
 
-        .card-stars:active { box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); border-color: var(--accent-blue); }
-        .card-premium:active { box-shadow: 0 0 30px rgba(168, 85, 247, 0.2); border-color: var(--accent-purple); }
-        .card-nft:active { box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); border-color: var(--accent-gold); }
+        .img-wrapper img { width: 70%; object-fit: contain; }
 
-        .product-card img {
-            width: 75%;
-            height: 75%;
-            object-fit: contain;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-            transition: transform 0.4s ease;
-        }
-
-        .card-nft img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: none;
-        }
-
+        /* Навигация */
         nav {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 40px);
-            height: 70px;
-            background: rgba(15, 15, 20, 0.8);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 40px); height: 70px; background: rgba(15, 15, 20, 0.8);
+            backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px; display: flex; justify-content: space-around; align-items: center; z-index: 1000;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: #4b5563;
-            font-size: 11px;
-            font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .nav-item { color: #4b5563; font-size: 11px; font-weight: 700; text-align: center; }
+        .nav-item.active { color: var(--accent-blue); }
+
+        .section { display: none; opacity: 0; }
+        .section.active { display: block; opacity: 1; }
+
+        .shadow-premium {
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.1);
         }
-
-        .nav-item.active {
-            color: var(--accent-blue);
-            text-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-        }
-
-        .nav-icon {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-            transition: transform 0.3s ease;
-        }
-
-        .nav-item.active .nav-icon { transform: translateY(-3px) scale(1.1); }
-
-        .section {
-            display: none;
-            opacity: 0;
-            transform: translateY(15px);
-            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .section.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .admin-glow {
-            background: linear-gradient(90deg, #ef4444, #f97316);
-            box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
-            border: none;
-            transition: all 0.3s ease;
-        }
-        
-        .admin-glow:active {
-            transform: scale(0.95);
-            box-shadow: 0 0 40px rgba(239, 68, 68, 0.5);
-        }
-        /* Вставляй это в конец блока <style> */
-
-/* 1. Эффект блика на карточках */
-.product-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -60%;
-    width: 20%;
-    height: 200%;
-    background: rgba(255, 255, 255, 0.1);
-    transform: rotate(30deg);
-    transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
-    z-index: 2;
-}
-
-/* Блик срабатывает при нажатии */
-.product-card:active::after {
-    left: 120%;
-}
-
-/* 2. Градиентный переливающийся текст */
-.text-gradient {
-    background: linear-gradient(90deg, #3b82f6, #a855f7, #3b82f6);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine-text 3s linear infinite;
-}
-
-@keyframes shine-text {
-    to { background-position: 200% center; }
-}
-
-/* 3. Премиальная тень */
-.shadow-premium {
-    box-shadow: 
-        0 10px 15px -3px rgba(59, 130, 246, 0.3),
-        0 4px 6px -2px rgba(59, 130, 246, 0.05),
-        inset 0 2px 4px rgba(255, 255, 255, 0.1);
-}
     </style>
 </head>
 <body>
@@ -264,192 +165,97 @@
     <div class="app-shell">
         <header>
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black italic shadow-[0_0_15px_rgba(37,99,235,0.4)]">C</div>
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black italic shadow-premium">C</div>
                 <span class="font-bold tracking-tight">CURSOR <span class="text-blue-500">AI STORE</span></span>
             </div>
             <div class="balance-pill">
                 <span class="text-xs font-extrabold text-blue-400">1,240</span>
                 <span class="text-[10px]">⭐️</span>
             </div>
-                 <header>
-                         <div class="flex items-center gap-2">...</div>
-                         <div class="balance-pill">...</div>
-    
-                          <div id="progress-bar" style="height: 2px; width: 0%; background: var(--accent-blue); position: absolute; bottom: 0; left: 0; transition: width 0.1s; z-index: 101;"></div>
-                 </header>
-            
+            <div id="progress-bar" style="height: 2px; width: 0%; background: var(--accent-blue); position: absolute; bottom: 0; left: 0; transition: width 0.1s;"></div>
         </header>
 
-        <main>
+        <main id="main-scroll">
             <div id="catalog" class="section active">
-                <div class="flex justify-between items-end mb-6">
-                    <h1 class="text-3xl font-extrabold">Магазин</h1>
-                    <span class="text-zinc-500 text-xs font-bold mb-1 uppercase tracking-widest">3 товара</span>
-                </div>
-                
-                <div class="grid grid-cols-1 gap-6" id="product-list">
-                    
-                    <div class="product-card card-stars" onclick="buy('50 Stars', 1.5)">
+                <h1 class="text-3xl font-extrabold mb-6 text-gradient">Магазин</h1>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="product-card" onclick="buy('50 Stars', 1.5)">
                         <div class="img-wrapper">
-                            <img src="https://img.icons8.com/fluency/144/star--v1.png" alt="Stars">
+                            <img src="https://img.icons8.com/fluency/144/star--v1.png">
                         </div>
                         <div class="flex justify-between items-center px-2">
                             <div>
                                 <h3 class="font-extrabold text-xl">Stars</h3>
-                                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Мгновенно</p>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Мгновенно</p>
                             </div>
-                                 <div class="text-2xl font-black text-blue-500 text-gradient">$1.50</div>
+                            <div class="text-2xl font-black text-gradient">$1.50</div>
                         </div>
                     </div>
 
-                    <div class="product-card card-premium" onclick="buy('Premium', 4.99)">
+                    <div class="product-card" onclick="buy('Premium', 4.99)">
                         <div class="img-wrapper">
-                            <img src="https://img.icons8.com/fluency/144/telegram-app.png" alt="Premium">
+                            <img src="https://img.icons8.com/fluency/144/telegram-app.png">
                         </div>
                         <div class="flex justify-between items-center px-2">
                             <div>
                                 <h3 class="font-extrabold text-xl">Premium</h3>
-                                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Активация</p>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Активация</p>
                             </div>
-                                  <div class="text-2xl font-black text-purple-400 text-gradient">$4.99</div>
+                            <div class="text-2xl font-black text-gradient">$4.99</div>
                         </div>
                     </div>
-
-                    <div class="product-card card-nft" onclick="buy('NFT Gift', 15.0)">
-                        <div class="img-wrapper shadow-[0_0_20px_rgba(245,158,11,0.1)]">
-                            <img src="https://static.tildacdn.one/tild6539-6337-4638-b633-336532343061/GiftsGiftsGifts_AgAD.png" alt="NFT Gift">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        </div>
-                        <div class="flex justify-between items-center px-2 relative z-10">
-                            <div>
-                                <h3 class="font-extrabold text-xl">NFT Gift</h3>
-                                <p class="text-[10px] text-amber-500 font-bold uppercase tracking-widest">Exclusive Edition</p>
-                            </div>
-                                 <div class="text-2xl font-black text-amber-500 text-gradient">$15.00</div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
             <div id="profile" class="section">
-                <h1 class="text-3xl font-extrabold mb-8">Профиль</h1>
-                
-                <div class="product-card mb-6 flex items-center gap-5 p-6 border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.05)]" style="opacity:1;">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center text-3xl font-black shadow-2xl" id="u-icon">?</div>
-                    <div>
-                        <div class="text-2xl font-extrabold" id="u-name">User</div>
-                        <div class="text-xs text-zinc-500 font-mono mt-1" id="u-id">ID: 000000</div>
-                    </div>
+                <h1 class="text-3xl font-extrabold mb-6">Профиль</h1>
+                <div class="product-card" style="opacity: 1;">
+                    <div class="text-xl font-bold" id="u-name">User</div>
+                    <div class="text-zinc-500" id="u-id">ID: 000</div>
                 </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="product-card text-center py-8 border-white/5" style="opacity:1;">
-                        <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter mb-1">Баланс</p>
-                        <p class="text-2xl font-black">$0.00</p>
-                    </div>
-                    <div class="product-card text-center py-8 border-white/5" style="opacity:1;">
-                        <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter mb-1">Покупки</p>
-                        <p class="text-2xl font-black">0</p>
-                    </div>
-                </div>
-
-                <button id="admin-panel" class="hidden admin-glow w-full h-16 rounded-3xl font-black text-sm uppercase tracking-widest mb-4 text-white">
-                    ADMIN PANEL
-                </button>
             </div>
         </main>
 
         <nav>
-            <div onclick="switchTab('catalog', this)" class="nav-item active">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3L4 9V21H20V9L12 3M12 7.7L18.1 12.3V19.4H5.9V12.3L12 7.7Z"/></svg>
-                <span>МАРКЕТ</span>
-            </div>
-            <div onclick="switchTab('profile', this)" class="nav-item">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12C14.2 12 16 10.2 16 8C16 5.8 14.2 4 12 4C9.8 4 8 5.8 8 8C8 10.2 9.8 12 12 12M12 14C9.3 14 4 15.3 4 18V20H20V18C20 15.3 14.7 14 12 14Z"/></svg>
-                <span>ПРОФИЛЬ</span>
-            </div>
+            <div onclick="switchTab('catalog', this)" class="nav-item active">МАРКЕТ</div>
+            <div onclick="switchTab('profile', this)" class="nav-item">ПРОФИЛЬ</div>
         </nav>
     </div>
 
     <script>
-// Скрываем лишние кнопки, если они мешают
-tg.headerColor = '#08080a'; // Цвет верхней полоски под твой фон
-tg.backgroundColor = '#08080a';
-        
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
-        tg.headerColor = '#08080a';
-        tg.backgroundColor = '#08080a';
+        
+        // Убираем точки и настраиваем цвета Telegram
+        tg.setHeaderColor('#08080a');
+        tg.setBackgroundColor('#08080a');
 
-        const ADMIN_ID = 2076467636;
-
-        const user = tg.initDataUnsafe?.user || { first_name: "Cursor User", id: 0 };
+        const user = tg.initDataUnsafe?.user || { first_name: "User", id: 0 };
         document.getElementById('u-name').innerText = user.first_name;
         document.getElementById('u-id').innerText = "ID: " + user.id;
-        document.getElementById('u-icon').innerText = user.first_name.charAt(0).toUpperCase();
-
-        if (user.id === ADMIN_ID) {
-            document.getElementById('admin-panel').classList.remove('hidden');
-        }
 
         function switchTab(id, el) {
-            if (el.classList.contains('active')) return;
-
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
-            
-            const currentSection = document.querySelector('.section.active');
-            currentSection.style.opacity = '0';
-            currentSection.style.transform = 'translateY(15px)';
-
-            setTimeout(() => {
-                currentSection.classList.remove('active');
-                const nextSection = document.getElementById(id);
-                nextSection.classList.add('active');
-                
-                // ЭФФЕКТ ПЕРЕЗАПУСКА АНИМАЦИИ КАРТОЧЕК
-                if (id === 'catalog') {
-                    const cards = nextSection.querySelectorAll('.product-card');
-                    cards.forEach((card, index) => {
-                        card.style.animation = 'none';
-                        card.offsetHeight; // Сброс (reflow)
-                        card.style.animation = `fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards ${index * 0.1}s`;
-                    });
-                }
-
-                setTimeout(() => {
-                    nextSection.style.opacity = '1';
-                    nextSection.style.transform = 'translateY(0)';
-                }, 50);
-            }, 300);
-
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             tg.HapticFeedback.impactOccurred('medium');
         }
 
         function buy(name, price) {
             tg.HapticFeedback.impactOccurred('heavy');
-            tg.showConfirm(`Вы уверены, что хотите приобрести ${name} за $${price}?`, (ok) => {
-                if(ok) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                    tg.sendData(JSON.stringify({item: name, price: price}));
-                }
+            tg.showConfirm(`Купить ${name} за $${price}?`, (ok) => {
+                if(ok) tg.sendData(JSON.stringify({item: name, price: price}));
             });
         }
-        /* Вставляй это в самый конец блока <script> */
 
-document.querySelector('main').onscroll = function() {
-    const main = document.querySelector('main');
-    const winScroll = main.scrollTop;
-    const height = main.scrollHeight - main.clientHeight;
-    const scrolled = (winScroll / height) * 100;
-    // Проверяем, существует ли бар, чтобы не было ошибок
-    const bar = document.getElementById("progress-bar");
-    if(bar) bar.style.width = scrolled + "%";
-};
+        // Скролл прогресс
+        document.getElementById('main-scroll').onscroll = function() {
+            const m = document.getElementById('main-scroll');
+            const sc = (m.scrollTop / (m.scrollHeight - m.clientHeight)) * 100;
+            document.getElementById("progress-bar").style.width = sc + "%";
+        };
     </script>
 </body>
 </html>
-
-
