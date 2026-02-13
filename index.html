@@ -19,7 +19,6 @@
             --nav-bg: rgba(15, 15, 20, 0.8);
         }
 
-        /* Светлая тема */
         [data-theme="light"] {
             --bg-color: #f3f4f6;
             --card-bg: rgba(255, 255, 255, 0.8);
@@ -52,7 +51,6 @@
             z-index: 100;
         }
 
-        /* Кнопка темы */
         .theme-toggle {
             width: 40px; height: 40px; border-radius: 12px;
             background: var(--card-bg); border: 1px solid var(--border-color);
@@ -75,12 +73,43 @@
         }
         @keyframes shine-text { to { background-position: 200% center; } }
 
+        /* Элементы Профиля */
+        .balance-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-profile {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            flex: 1;
+            text-align: center;
+        }
+
         .compact-img-wrapper {
             width: 100%; height: 100px; border-radius: 12px; margin-bottom: 10px;
             display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.1);
         }
 
-        /* MODAL */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8);
             backdrop-filter: blur(10px); z-index: 2000; display: none;
@@ -166,17 +195,64 @@
             </div>
 
             <div id="profile" class="section">
-                <div class="flex items-center gap-5 mb-8">
-                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white" id="u-icon">?</div>
-                    <div><div class="text-xl font-extrabold" id="u-name">User</div><div class="text-xs text-zinc-500" id="u-id">ID: 0000</div></div>
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-xl font-black text-white" id="u-icon">?</div>
+                        <div>
+                            <div class="text-xl font-extrabold" id="u-name">User</div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-xs text-zinc-500 font-bold">0.0</span>
+                                <span class="text-[10px] text-zinc-600">⭐⭐⭐⭐⭐</span>
+                                <span class="text-[10px] text-blue-500 ml-1">0 отзывов</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-blue-500">👥</div>
+                        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">⚙️</div>
+                    </div>
+                </div>
+
+                <div class="balance-card mb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">💳</span>
+                        <span class="text-xl font-black">0 ₽</span>
+                    </div>
+                    <span class="text-zinc-500 text-lg">🕒</span>
+                </div>
+
+                <div class="flex items-center gap-2 mb-6 text-xs font-bold">
+                    <span class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-[10px]">!</span>
+                    <span class="text-zinc-400">Доступно для вывода: <span class="text-blue-500">0 ₽</span></span>
+                </div>
+
+                <button class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold text-white shadow-lg shadow-blue-500/20 mb-3 transition-all active:scale-[0.98]">
+                    Пополнить
+                </button>
+
+                <div class="flex gap-3 mb-8">
+                    <div class="btn-profile relative">
+                        Бонусный центр
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-[8px] px-1.5 py-0.5 rounded-full text-white">NEW</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <div class="btn-profile bg-zinc-800 border-none text-zinc-400">Товары</div>
+                    <div class="btn-profile bg-zinc-800 border-none text-zinc-400">Покупки</div>
+                </div>
+
+                <div class="search-bar">
+                    <span class="text-zinc-500">🔍</span>
+                    <input type="text" placeholder="Поиск по товарам" class="bg-transparent border-none outline-none text-sm text-zinc-300 w-full">
                 </div>
             </div>
         </main>
 
         <nav>
-            <div onclick="switchTab('home', this)" class="nav-item active">ГЛАВНАЯ</div>
+            <div onclick="switchTab('home', this)" class="nav-item">ГЛАВНАЯ</div>
             <div onclick="switchTab('catalog', this)" class="nav-item">МАРКЕТ</div>
-            <div onclick="switchTab('profile', this)" class="nav-item">ПРОФИЛЬ</div>
+            <div onclick="switchTab('profile', this)" class="nav-item active">ПРОФИЛЬ</div>
         </nav>
     </div>
 
@@ -282,9 +358,8 @@
 
         function closeModal(e) { document.getElementById('modal-overlay').style.display = 'none'; }
 
-        const user = tg.initDataUnsafe?.user || { first_name: "User", id: 0 };
+        const user = tg.initDataUnsafe?.user || { first_name: "Flex", id: 0 };
         document.getElementById('u-name').innerText = user.first_name;
-        document.getElementById('u-id').innerText = "ID: " + user.id;
         document.getElementById('u-icon').innerText = user.first_name.charAt(0).toUpperCase();
     </script>
 </body>
