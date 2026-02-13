@@ -51,9 +51,14 @@
             z-index: 100;
         }
 
+        .theme-toggle {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
         main { flex: 1; overflow-y: auto; padding: 20px 18px 120px 18px; scroll-behavior: smooth; }
 
-        /* Твои фирменные карточки */
         .product-card {
             background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 24px; padding: 16px; position: relative; overflow: hidden;
@@ -62,10 +67,19 @@
         .product-card:active { transform: scale(0.96); }
 
         .balance-container {
-            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 24px; padding: 20px; backdrop-filter: blur(15px);
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.15) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 28px; padding: 24px; position: relative; overflow: hidden;
+            backdrop-filter: blur(15px); cursor: pointer;
         }
+        .balance-container:active { transform: scale(0.98); }
+
+        .btn-profile {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 12px 20px; font-size: 13px;
+            font-weight: 700; flex: 1; text-align: center; cursor: pointer;
+        }
+        .btn-profile:active { transform: scale(0.95); opacity: 0.8; }
 
         .text-gradient {
             background: linear-gradient(90deg, #3b82f6, #a855f7, #3b82f6);
@@ -95,30 +109,17 @@
         .modal-content {
             background: var(--bg-color); border: 1px solid var(--border-color);
             width: 100%; max-width: 400px; border-radius: 32px; padding: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-
-        /* Ползунок */
-        .sum-slider {
-            -webkit-appearance: none; width: 100%; height: 8px;
-            background: rgba(255,255,255,0.1); border-radius: 10px; outline: none; margin: 20px 0;
-        }
-        .sum-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 24px; height: 24px;
-            background: #3b82f6; border-radius: 50%; cursor: pointer;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); border: 3px solid #fff;
-        }
-
-        .payment-method-card {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
-            border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 15px;
-            cursor: pointer; transition: 0.2s;
+        
+        .search-bar {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);
+            border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; gap: 12px;
         }
     </style>
 </head>
 <body data-theme="dark">
 
-    <div id="modal-overlay">
+    <div id="modal-overlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div id="modal-body"></div>
         </div>
@@ -128,81 +129,48 @@
         <header>
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black italic text-white">C</div>
-                <span class="font-bold tracking-tight">CURSOR <span class="text-gradient">AI</span></span>
+                <span class="font-bold tracking-tight text-lg">CURSOR <span class="text-gradient">AI</span></span>
             </div>
-            <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center cursor-pointer" onclick="toggleTheme()">
+            <div class="theme-toggle" onclick="toggleTheme()">
                 <span id="theme-icon">🌙</span>
             </div>
         </header>
 
         <main id="main-scroll">
             <div id="home" class="section">
-                <div class="relative overflow-hidden rounded-[32px] p-8 mb-6 bg-gradient-to-br from-blue-600/20 to-purple-600/10 border border-white/5">
-                    <h2 class="text-4xl font-black mb-2 leading-tight">Твой <br><span class="text-blue-500">Cursor Pro</span></h2>
-                    <p class="text-sm text-zinc-400 mb-6">Доступ ко всем нейросетям в одном месте.</p>
-                    <button onclick="switchTab('catalog', document.querySelectorAll('.nav-item')[1])" class="bg-blue-600 px-6 py-3 rounded-2xl font-bold text-sm">В каталог</button>
-                    <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full"></div>
-                </div>
-
-                <h3 class="text-lg font-bold mb-4 px-2">Популярное</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="product-card bg-zinc-900/40" onclick="openStarsModal('Cursor Pro', 20)">
-                        <img src="https://img.icons8.com/fluency/96/diamond--v1.png" class="w-10 h-10 mb-3">
-                        <div class="font-bold">Pro Sub</div>
-                        <div class="text-[10px] text-zinc-500 font-bold uppercase">$20.00</div>
-                    </div>
-                    <div class="product-card bg-zinc-900/40" onclick="openStarsModal('1000 Stars', 15)">
-                        <img src="https://img.icons8.com/fluency/96/star--v1.png" class="w-10 h-10 mb-3">
-                        <div class="font-bold">1000 Stars</div>
-                        <div class="text-[10px] text-zinc-500 font-bold uppercase">$15.00</div>
-                    </div>
+                <div class="relative overflow-hidden rounded-[32px] p-8 mb-8 bg-gradient-to-br from-blue-600/20 to-transparent border border-white/5">
+                    <h2 class="text-4xl font-black mb-2 leading-tight">Главная</h2>
+                    <p class="text-sm text-zinc-400">Добро пожаловать в Cursor Store. <br>Твой премиальный доступ к AI.</p>
                 </div>
             </div>
 
             <div id="catalog" class="section">
                 <div class="flex justify-between items-end mb-6 px-2">
-                    <h1 class="text-3xl font-black">Маркет</h1>
-                    <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">Premium</span>
+                    <h1 class="text-2xl font-extrabold">Магазин</h1>
+                    <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">3 товара</span>
                 </div>
                 
                 <div class="space-y-4">
-                    <div class="product-card flex items-center justify-between" onclick="openStarsModal('50 Stars', 1.5)">
+                    <div class="product-card flex items-center justify-between p-5" onclick="openStarsModal('50 Stars', 1.50)">
                         <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center">
-                                <img src="https://img.icons8.com/fluency/144/star--v1.png" class="w-10 h-10">
-                            </div>
+                            <img src="https://img.icons8.com/fluency/144/star--v1.png" class="w-12 h-12">
                             <div>
                                 <h3 class="font-bold text-lg">50 Stars</h3>
-                                <div class="text-[10px] text-blue-500 font-black uppercase tracking-wider">Instant Delivery</div>
+                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Мгновенно</div>
                             </div>
                         </div>
-                        <div class="text-xl font-black">$1.50</div>
+                        <div class="text-2xl font-black text-blue-500">$1.50</div>
                     </div>
 
-                    <div class="product-card flex items-center justify-between" onclick="openStarsModal('Cursor Pro', 20)">
+                    <div class="product-card flex items-center justify-between p-5" onclick="openStarsModal('Cursor Pro', 20.00)">
                         <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center">
-                                <img src="https://img.icons8.com/fluency/144/diamond--v1.png" class="w-10 h-10">
-                            </div>
+                            <img src="https://img.icons8.com/fluency/144/diamond--v1.png" class="w-12 h-12">
                             <div>
                                 <h3 class="font-bold text-lg">Cursor Pro</h3>
-                                <div class="text-[10px] text-purple-500 font-black uppercase tracking-wider">1 Month Access</div>
+                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Подписка 1 мес.</div>
                             </div>
                         </div>
-                        <div class="text-xl font-black">$20.00</div>
-                    </div>
-
-                    <div class="product-card flex items-center justify-between" onclick="openStarsModal('Business Plan', 40)">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center">
-                                <img src="https://img.icons8.com/fluency/144/briefcase.png" class="w-10 h-10">
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg">Business</h3>
-                                <div class="text-[10px] text-amber-500 font-black uppercase tracking-wider">Team License</div>
-                            </div>
-                        </div>
-                        <div class="text-xl font-black">$40.00</div>
+                        <div class="text-2xl font-black text-blue-500">$20.00</div>
                     </div>
                 </div>
             </div>
@@ -210,34 +178,64 @@
             <div id="profile" class="section active">
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-[22px] flex items-center justify-center text-2xl font-black text-white" id="u-icon">?</div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-lg shadow-blue-500/20" id="u-icon">?</div>
                         <div>
                             <div class="text-2xl font-black" id="u-name">User</div>
-                            <div class="text-xs text-zinc-500 font-bold">Premium Member</div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-xs text-zinc-500 font-bold">0.0</span>
+                                <span class="text-[10px] text-zinc-600">⭐⭐⭐⭐⭐</span>
+                                <span class="text-[10px] text-blue-500 ml-1">0 покупок</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div onclick="handleSocial()" class="w-11 h-11 bg-white/5 rounded-xl flex items-center justify-center text-blue-500 cursor-pointer active:scale-90 transition-transform border border-white/5">
+                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
+                        <div onclick="handleSettings()" class="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center text-white cursor-pointer active:scale-90 transition-transform shadow-lg shadow-blue-600/20">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                         </div>
                     </div>
                 </div>
 
-                <div class="balance-container mb-6">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Доступный баланс</span>
-                        <img src="https://img.icons8.com/ios-glyphs/90/ffffff/historical.png" class="w-4 h-4 opacity-20">
+                <div class="balance-container mb-6" onclick="openHistoryModal()">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-5">
+                            <div class="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                                <img src="https://img.icons8.com/fluency/96/wallet.png" class="w-9 h-9" alt="Кошелек">
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Твой баланс</div>
+                                <div class="text-4xl font-black">0 ₽</div>
+                            </div>
+                        </div>
+                        <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center">
+                            <img src="https://img.icons8.com/ios-glyphs/90/ffffff/historical.png" class="w-5 h-5 opacity-50">
+                        </div>
                     </div>
-                    <div class="text-4xl font-black mb-6">0 ₽</div>
-                    <button onclick="handleTopUp()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-sm active:scale-95 transition-all">
-                        ПОПОЛНИТЬ
-                    </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 mb-8">
-                    <div class="product-card bg-zinc-900/30 flex flex-col items-center py-6">
-                        <span class="text-xl mb-1">🎁</span>
-                        <span class="text-[10px] font-bold text-zinc-500 uppercase">Бонусы</span>
+                <button onclick="handleTopUp()" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-[22px] font-black text-white shadow-lg shadow-blue-500/25 mb-4 transition-all active:scale-[0.98]">
+                    ПОПОЛНИТЬ БАЛАНС
+                </button>
+
+                <div class="flex gap-3 mb-8">
+                    <div onclick="handleBonuses()" class="btn-profile relative bg-zinc-900/50">
+                        Бонусный центр
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-[8px] px-2 py-0.5 rounded-full text-white font-black">NEW</span>
                     </div>
-                    <div class="product-card bg-zinc-900/30 flex flex-col items-center py-6">
-                        <span class="text-xl mb-1">🛍️</span>
-                        <span class="text-[10px] font-bold text-zinc-500 uppercase">Покупки</span>
-                    </div>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <div onclick="filterProducts('all')" class="btn-profile bg-blue-600 border-none text-white">Все товары</div>
+                    <div onclick="filterProducts('bought')" class="btn-profile bg-zinc-800/50 border-none text-zinc-400">Мои покупки</div>
+                </div>
+
+                <div class="search-bar">
+                    <span class="text-blue-500">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
+                    <input type="text" placeholder="Поиск по инвентарю" class="bg-transparent border-none outline-none text-sm text-zinc-300 w-full font-semibold">
                 </div>
             </div>
         </main>
@@ -254,6 +252,18 @@
         tg.ready();
         tg.expand();
 
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '☀️';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.innerText = '🌙';
+            }
+        }
+
         function switchTab(id, el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
@@ -262,87 +272,53 @@
             tg.HapticFeedback.impactOccurred('light');
         }
 
-        function toggleTheme() {
-            const body = document.body;
-            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-            document.getElementById('theme-icon').innerText = body.getAttribute('data-theme') === 'dark' ? '🌙' : '☀️';
-        }
-
-        // МОДАЛКА ОПЛАТЫ (ПОЛЗУНОК)
-        function handleTopUp() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const overlay = document.getElementById('modal-overlay');
-            const body = document.getElementById('modal-body');
-            
-            body.innerHTML = `
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-black">Пополнение</h2>
-                    <div onclick="closeModal()" class="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center text-sm">✕</div>
-                </div>
-                <div class="text-center mb-8">
-                    <div class="text-5xl font-black text-blue-500 mb-2" id="display-sum">1 000 ₽</div>
-                    <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Выберите сумму</div>
-                </div>
-                <input type="range" min="100" max="1000000" step="100" value="1000" class="sum-slider" id="sum-range" oninput="updateSum(this.value)">
-                
-                <button onclick="goToPaymentMethods()" class="w-full bg-blue-600 py-4 rounded-2xl mt-6 font-black text-white shadow-lg shadow-blue-500/20">ПРОДОЛЖИТЬ</button>
-            `;
-            overlay.style.display = 'flex';
-        }
-
-        function updateSum(val) {
-            document.getElementById('display-sum').innerText = Number(val).toLocaleString() + ' ₽';
-            if (val % 1000 === 0) tg.HapticFeedback.selectionChanged();
-        }
-
-        function goToPaymentMethods() {
-            const sum = document.getElementById('sum-range').value;
-            const body = document.getElementById('modal-body');
-            body.style.opacity = '0';
-            
-            setTimeout(() => {
-                body.innerHTML = `
-                    <div class="flex items-center gap-4 mb-8">
-                        <div onclick="handleTopUp()" class="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center text-xs">←</div>
-                        <h2 class="text-xl font-black">${Number(sum).toLocaleString()} ₽</h2>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div class="payment-method-card" onclick="closeModal()">
-                            <img src="https://img.icons8.com/nolan/64/fast-cart.png" class="w-10 h-10">
-                            <div><div class="font-bold text-sm">СБП</div><div class="text-[9px] text-zinc-500 font-bold uppercase">Fast & Secure</div></div>
-                        </div>
-                        <div class="payment-method-card" onclick="closeModal()">
-                            <img src="https://img.icons8.com/color/64/bitcoin--v1.png" class="w-10 h-10">
-                            <div><div class="font-bold text-sm">Bitcoin</div><div class="text-[9px] text-zinc-500 font-bold uppercase">Crypto payment</div></div>
-                        </div>
-                        <div class="payment-method-card" onclick="closeModal()">
-                            <img src="https://img.icons8.com/fluency/64/bank-card-back-side.png" class="w-10 h-10">
-                            <div><div class="font-bold text-sm">Карта РФ</div><div class="text-[9px] text-zinc-500 font-bold uppercase">Visa, Mir, MC</div></div>
-                        </div>
-                    </div>
-                `;
-                body.style.opacity = '1';
-            }, 150);
-        }
-
         function openStarsModal(title, price) {
+            tg.HapticFeedback.impactOccurred('medium');
             const overlay = document.getElementById('modal-overlay');
             const body = document.getElementById('modal-body');
             body.innerHTML = `
                 <h2 class="text-2xl font-black mb-2">${title}</h2>
-                <div class="bg-white/5 p-6 rounded-[24px] border border-white/5 my-6 text-center">
-                    <span class="text-4xl font-black text-blue-500">$${price}</span>
+                <div class="mt-8 flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5">
+                    <span class="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">К оплате:</span>
+                    <span class="text-3xl font-black text-blue-500">$${price.toFixed(2)}</span>
                 </div>
-                <button onclick="closeModal()" class="w-full bg-blue-600 py-4 rounded-2xl font-black">КУПИТЬ</button>
-                <button onclick="closeModal()" class="w-full py-4 text-zinc-500 font-bold text-xs mt-2 uppercase tracking-widest">Отмена</button>
+                <button onclick="closeModal()" class="w-full bg-blue-600 py-4 rounded-2xl mt-6 font-black text-white shadow-lg">КУПИТЬ СЕЙЧАС</button>
+            `;
+            overlay.style.display = 'flex';
+        }
+
+        function openHistoryModal() {
+            const overlay = document.getElementById('modal-overlay');
+            const body = document.getElementById('modal-body');
+            body.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-black">История</h2>
+                    <div onclick="closeModal()" class="text-zinc-500 text-xl">✕</div>
+                </div>
+                <div class="py-12 text-center">
+                    <div class="text-zinc-500 font-bold mb-1">Список пуст</div>
+                    <div class="text-[10px] uppercase text-zinc-600 tracking-widest">Ваши транзакции появятся здесь</div>
+                </div>
             `;
             overlay.style.display = 'flex';
         }
 
         function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 
-        const user = tg.initDataUnsafe?.user || { first_name: "Flex" };
+        // ТВОИ ХЕНДЛЕРЫ
+        function handleSocial() { tg.showAlert('Раздел друзей в разработке 🚀'); }
+        function handleSettings() { tg.showAlert('Настройки профиля'); }
+        function handleTopUp() { 
+            tg.HapticFeedback.impactOccurred('heavy');
+            tg.showAlert('Переход к оплате...'); 
+        }
+        function handleBonuses() { tg.showAlert('Бонусный баланс: 0'); }
+        function filterProducts(type) { 
+            tg.HapticFeedback.selectionChanged();
+            console.log('Filter:', type); 
+        }
+
+        const user = tg.initDataUnsafe?.user || { first_name: "Cursor" };
         document.getElementById('u-name').innerText = user.first_name;
         document.getElementById('u-icon').innerText = user.first_name.charAt(0).toUpperCase();
     </script>
