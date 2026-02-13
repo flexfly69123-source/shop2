@@ -58,9 +58,9 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Чтобы скрыть скроллбар */
         main::-webkit-scrollbar { width: 0; display: none; }
 
+        /* Анимация для карточек */
         .product-card {
             background: #0f0f12;
             border: 1px solid rgba(255,255,255,0.05);
@@ -69,7 +69,13 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            transition: transform 0.1s;
+            transition: transform 0.15s ease;
+            animation: fadeSlide 0.4s ease forwards;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .product-card:active {
@@ -83,7 +89,7 @@
             width: 100%;
             height: 80px;
             background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border-top: 1px solid rgba(255,255,255,0.1);
             display: flex;
             justify-content: space-around;
@@ -100,6 +106,8 @@
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
+            cursor: pointer;
+            transition: color 0.2s;
         }
 
         .nav-link.active { color: #3b82f6; }
@@ -110,16 +118,18 @@
         .filter-btn {
             background: #18181b;
             color: #a1a1aa;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 12px;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: 13px;
             font-weight: 600;
             white-space: nowrap;
+            transition: all 0.2s ease;
         }
 
         .filter-btn.active {
             background: #3b82f6;
             color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
         }
     </style>
 </head>
@@ -127,22 +137,23 @@
 
     <div class="app-shell">
         <header>
-            <div class="bg-blue-500/10 border border-blue-500/30 px-3 py-1 rounded-lg text-blue-400 text-xs font-bold">
+            <div class="bg-blue-500/10 border border-blue-500/30 px-4 py-1.5 rounded-full text-blue-400 text-xs font-bold shadow-[0_0_10px_rgba(59,130,246,0.1)]">
                 1,240 ⭐️
             </div>
         </header>
 
-        <main>
+        <main id="scroll-area">
             <div id="catalog-page" class="section active">
                 <h1 class="text-2xl font-bold mb-6">Магазин</h1>
                 
-                <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+                <div class="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
                     <button onclick="applyFilter(this, 'all')" class="filter-btn active">Все</button>
                     <button onclick="applyFilter(this, 'Stars')" class="filter-btn">Stars</button>
                     <button onclick="applyFilter(this, 'Premium')" class="filter-btn">Premium</button>
+                    <button onclick="applyFilter(this, 'NFT')" class="filter-btn">NFT</button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4" id="product-grid">
                     <div class="product-card item-Stars" onclick="buy('50 Stars', 1.5)">
                         <span class="text-3xl">⭐️</span>
                         <div class="font-bold text-sm">50 Stars</div>
@@ -152,6 +163,11 @@
                         <span class="text-3xl">💎</span>
                         <div class="font-bold text-sm">Premium</div>
                         <div class="text-blue-500 font-bold">$4.99</div>
+                    </div>
+                    <div class="product-card item-NFT" onclick="buy('Special NFT', 25.0)">
+                        <span class="text-3xl">🖼</span>
+                        <div class="font-bold text-sm">NFT Avatar</div>
+                        <div class="text-blue-500 font-bold">$25.00</div>
                     </div>
                     <div class="product-card item-Stars" onclick="buy('100 Stars', 2.99)">
                         <span class="text-3xl">⭐️</span>
@@ -163,11 +179,21 @@
 
             <div id="profile-page" class="section">
                 <h1 class="text-2xl font-bold mb-6">Профиль</h1>
-                <div class="product-card flex-row items-center gap-4 mb-4">
-                    <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center font-bold" id="user-icon">?</div>
+                <div class="product-card flex-row items-center gap-4 mb-6">
+                    <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-xl font-bold shadow-lg" id="user-icon">?</div>
                     <div>
-                        <div class="font-bold" id="user-name">Загрузка...</div>
-                        <div class="text-xs text-zinc-500" id="user-id">ID: 000000</div>
+                        <div class="text-lg font-bold" id="user-name">Загрузка...</div>
+                        <div class="text-xs text-zinc-500 font-mono" id="user-id">ID: 000000</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="product-card items-center justify-center py-6">
+                        <div class="text-[10px] text-zinc-500 uppercase font-bold mb-1">Баланс</div>
+                        <div class="text-xl font-bold">$0.00</div>
+                    </div>
+                    <div class="product-card items-center justify-center py-6">
+                        <div class="text-[10px] text-zinc-500 uppercase font-bold mb-1">Покупки</div>
+                        <div class="text-xl font-bold text-blue-500">0</div>
                     </div>
                 </div>
             </div>
@@ -175,11 +201,11 @@
 
         <nav>
             <div onclick="showPage('catalog-page', this)" class="nav-link active">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span>Магазин</span>
             </div>
             <div onclick="showPage('profile-page', this)" class="nav-link">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span>Профиль</span>
             </div>
         </nav>
@@ -189,37 +215,53 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.headerColor = '#000000';
+        tg.backgroundColor = '#050505';
 
         // Данные юзера
         const u = tg.initDataUnsafe?.user || { first_name: "User", id: "000000" };
         document.getElementById('user-name').innerText = u.first_name;
         document.getElementById('user-id').innerText = "ID: " + u.id;
-        document.getElementById('user-icon').innerText = u.first_name.charAt(0);
+        document.getElementById('user-icon').innerText = u.first_name.charAt(0).toUpperCase();
 
         function showPage(pageId, el) {
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            tg.HapticFeedback.impactOccurred('light');
+            
+            // Скроллим наверх при смене вкладки
+            document.getElementById('scroll-area').scrollTop = 0;
+            tg.HapticFeedback.impactOccurred('medium');
         }
 
         function applyFilter(btn, category) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            document.querySelectorAll('[class*="item-"]').forEach(item => {
+            const items = document.querySelectorAll('[class*="item-"]');
+            items.forEach(item => {
+                // Сначала скрываем
+                item.style.display = 'none';
+                // Сбрасываем анимацию
+                item.style.animation = 'none';
+                
                 if (category === 'all' || item.classList.contains('item-' + category)) {
                     item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
+                    // Перезапускаем анимацию через микро-таймаут
+                    setTimeout(() => {
+                        item.style.animation = 'fadeSlide 0.4s ease forwards';
+                    }, 10);
                 }
             });
+            tg.HapticFeedback.selectionChanged();
         }
 
         function buy(name, price) {
-            tg.showConfirm(`Купить ${name} за $${price}?`, (ok) => {
-                if(ok) tg.sendData(JSON.stringify({product: name}));
+            tg.showConfirm(`Подтвердить покупку ${name} за $${price}?`, (ok) => {
+                if(ok) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    tg.sendData(JSON.stringify({product: name, price: price}));
+                }
             });
         }
     </script>
