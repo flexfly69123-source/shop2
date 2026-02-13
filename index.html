@@ -73,7 +73,7 @@
             scroll-behavior: smooth;
         }
 
-        /* ГРЕБАНЫЕ КРАСИВЫЕ КАРТОЧКИ */
+        /* КАРТОЧКИ С АНИМАЦИЕЙ ПОЯВЛЕНИЯ */
         .product-card {
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -83,10 +83,33 @@
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
-            will-change: transform, box-shadow;
+            will-change: transform, opacity;
+            
+            /* Начальное состояние для анимации */
+            opacity: 0;
         }
 
-        /* Анимация при нажатии на карточку */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Применяем анимацию по умолчанию для первой загрузки */
+        .product-card {
+            animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Задержки для эффекта очереди */
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+
         .product-card:active {
             transform: scale(0.96);
             border-color: rgba(255, 255, 255, 0.3);
@@ -107,7 +130,6 @@
             transition: all 0.4s ease;
         }
 
-        /* Цветовые стили и Glow для каждой категории */
         .card-stars:active { box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); border-color: var(--accent-blue); }
         .card-premium:active { box-shadow: 0 0 30px rgba(168, 85, 247, 0.2); border-color: var(--accent-purple); }
         .card-nft:active { box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); border-color: var(--accent-gold); }
@@ -127,7 +149,6 @@
             filter: none;
         }
 
-        /* Навигация */
         nav {
             position: absolute;
             bottom: 20px;
@@ -171,7 +192,6 @@
 
         .nav-item.active .nav-icon { transform: translateY(-3px) scale(1.1); }
 
-        /* Секции и плавные переходы */
         .section {
             display: none;
             opacity: 0;
@@ -185,7 +205,6 @@
             transform: translateY(0);
         }
 
-        /* Админка */
         .admin-glow {
             background: linear-gradient(90deg, #ef4444, #f97316);
             box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
@@ -220,7 +239,7 @@
                     <span class="text-zinc-500 text-xs font-bold mb-1 uppercase tracking-widest">3 товара</span>
                 </div>
                 
-                <div class="grid grid-cols-1 gap-6">
+                <div class="grid grid-cols-1 gap-6" id="product-list">
                     
                     <div class="product-card card-stars" onclick="buy('50 Stars', 1.5)">
                         <div class="img-wrapper">
@@ -268,7 +287,7 @@
             <div id="profile" class="section">
                 <h1 class="text-3xl font-extrabold mb-8">Профиль</h1>
                 
-                <div class="product-card mb-6 flex items-center gap-5 p-6 border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.05)]">
+                <div class="product-card mb-6 flex items-center gap-5 p-6 border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.05)]" style="opacity:1;">
                     <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center text-3xl font-black shadow-2xl" id="u-icon">?</div>
                     <div>
                         <div class="text-2xl font-extrabold" id="u-name">User</div>
@@ -277,11 +296,11 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="product-card text-center py-8 border-white/5">
+                    <div class="product-card text-center py-8 border-white/5" style="opacity:1;">
                         <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter mb-1">Баланс</p>
                         <p class="text-2xl font-black">$0.00</p>
                     </div>
-                    <div class="product-card text-center py-8 border-white/5">
+                    <div class="product-card text-center py-8 border-white/5" style="opacity:1;">
                         <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter mb-1">Покупки</p>
                         <p class="text-2xl font-black">0</p>
                     </div>
@@ -312,7 +331,7 @@
         tg.headerColor = '#08080a';
         tg.backgroundColor = '#08080a';
 
-        const ADMIN_ID = 5585090176;
+        const ADMIN_ID = 2076467636;
 
         const user = tg.initDataUnsafe?.user || { first_name: "Cursor User", id: 0 };
         document.getElementById('u-name').innerText = user.first_name;
@@ -338,7 +357,16 @@
                 const nextSection = document.getElementById(id);
                 nextSection.classList.add('active');
                 
-                // Триггер для перерисовки и начала анимации
+                // ЭФФЕКТ ПЕРЕЗАПУСКА АНИМАЦИИ КАРТОЧЕК
+                if (id === 'catalog') {
+                    const cards = nextSection.querySelectorAll('.product-card');
+                    cards.forEach((card, index) => {
+                        card.style.animation = 'none';
+                        card.offsetHeight; // Сброс (reflow)
+                        card.style.animation = `fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards ${index * 0.1}s`;
+                    });
+                }
+
                 setTimeout(() => {
                     nextSection.style.opacity = '1';
                     nextSection.style.transform = 'translateY(0)';
