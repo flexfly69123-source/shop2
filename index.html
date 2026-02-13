@@ -1,54 +1,362 @@
-<main>
-    <div id="catalog" class="section active">
-        <div class="flex justify-between items-end mb-6">
-            <h1 class="text-3xl font-extrabold tracking-tight">Магазин</h1>
-            <span class="text-zinc-500 text-xs font-bold mb-1 uppercase tracking-widest">Premium Selection</span>
-        </div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Cursor Store Premium</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         
-        <div class="grid grid-cols-1 gap-6">
-            
-            <div class="product-card card-stars group" onclick="buy('50 Stars', 1.5)">
-                <div class="img-wrapper shadow-[0_0_30px_rgba(59,130,246,0.15)]">
-                    <img src="https://img.icons8.com/fluency/144/star--v1.png" alt="Stars" class="group-active:scale-110 transition-transform">
+        :root {
+            --bg-color: #08080a;
+            --card-bg: rgba(18, 18, 22, 0.7);
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --accent-gold: #f59e0b;
+        }
+
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
+            box-sizing: border-box; 
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent),
+                              radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.08), transparent);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+
+        .balance-pill {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 6px 14px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 18px 120px 18px;
+            scroll-behavior: smooth;
+        }
+
+        /* ГРЕБАНЫЕ КРАСИВЫЕ КАРТОЧКИ */
+        .product-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            will-change: transform, box-shadow;
+        }
+
+        /* Анимация при нажатии на карточку */
+        .product-card:active {
+            transform: scale(0.96);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .img-wrapper {
+            width: 100%;
+            height: 150px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            background: #121216;
+            transition: all 0.4s ease;
+        }
+
+        /* Цветовые стили и Glow для каждой категории */
+        .card-stars:active { box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); border-color: var(--accent-blue); }
+        .card-premium:active { box-shadow: 0 0 30px rgba(168, 85, 247, 0.2); border-color: var(--accent-purple); }
+        .card-nft:active { box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); border-color: var(--accent-gold); }
+
+        .product-card img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            transition: transform 0.4s ease;
+        }
+
+        .card-nft img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: none;
+        }
+
+        /* Навигация */
+        nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            height: 70px;
+            background: rgba(15, 15, 20, 0.8);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #4b5563;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item.active {
+            color: var(--accent-blue);
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.active .nav-icon { transform: translateY(-3px) scale(1.1); }
+
+        /* Секции и плавные переходы */
+        .section {
+            display: none;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Админка */
+        .admin-glow {
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-glow:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <header>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black italic shadow-[0_0_15px_rgba(37,99,235,0.4)]">C</div>
+                <span class="font-bold tracking-tight">CURSOR <span class="text-blue-500">AI STORE</span></span>
+            </div>
+            <div class="balance-pill">
+                <span class="text-xs font-extrabold text-blue-400">1,240</span>
+                <span class="text-[10px]">⭐️</span>
+            </div>
+        </header>
+
+        <main>
+            <div id="catalog" class="section active">
+                <div class="flex justify-between items-end mb-6">
+                    <h1 class="text-3xl font-extrabold">Магазин</h1>
+                    <span class="text-zinc-500 text-xs font-bold mb-1 uppercase tracking-widest">3 товара</span>
                 </div>
-                <div class="flex justify-between items-center px-2">
-                    <div>
-                        <h3 class="font-extrabold text-xl">50 Telegram Stars</h3>
-                        <p class="text-[10px] text-blue-400/60 font-bold uppercase tracking-widest">Instant Delivery</p>
+                
+                <div class="grid grid-cols-1 gap-6">
+                    
+                    <div class="product-card card-stars" onclick="buy('50 Stars', 1.5)">
+                        <div class="img-wrapper">
+                            <img src="https://img.icons8.com/fluency/144/star--v1.png" alt="Stars">
+                        </div>
+                        <div class="flex justify-between items-center px-2">
+                            <div>
+                                <h3 class="font-extrabold text-xl">50 Stars</h3>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Мгновенно</p>
+                            </div>
+                            <div class="text-2xl font-black text-blue-500">$1.50</div>
+                        </div>
                     </div>
-                    <div class="text-2xl font-black text-blue-500">$1.50</div>
+
+                    <div class="product-card card-premium" onclick="buy('Premium', 4.99)">
+                        <div class="img-wrapper">
+                            <img src="https://img.icons8.com/fluency/144/telegram-app.png" alt="Premium">
+                        </div>
+                        <div class="flex justify-between items-center px-2">
+                            <div>
+                                <h3 class="font-extrabold text-xl">Premium 1M</h3>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Активация</p>
+                            </div>
+                            <div class="text-2xl font-black text-purple-400">$4.99</div>
+                        </div>
+                    </div>
+
+                    <div class="product-card card-nft" onclick="buy('NFT Gift', 15.0)">
+                        <div class="img-wrapper shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+                            <img src="https://static.tildacdn.one/tild6539-6337-4638-b633-336532343061/GiftsGiftsGifts_AgAD.png" alt="NFT Gift">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        </div>
+                        <div class="flex justify-between items-center px-2 relative z-10">
+                            <div>
+                                <h3 class="font-extrabold text-xl">NFT Avatar Gift</h3>
+                                <p class="text-[10px] text-amber-500 font-bold uppercase tracking-widest">Exclusive Edition</p>
+                            </div>
+                            <div class="text-2xl font-black text-amber-500">$15.00</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="product-card card-premium group" onclick="buy('Premium', 4.99)">
-                <div class="img-wrapper shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-                    <img src="https://img.icons8.com/fluency/144/telegram-app.png" alt="Premium" class="group-active:scale-110 transition-transform">
-                </div>
-                <div class="flex justify-between items-center px-2">
+            <div id="profile" class="section">
+                <h1 class="text-3xl font-extrabold mb-8">Профиль</h1>
+                
+                <div class="product-card mb-6 flex items-center gap-5 p-6 border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.05)]">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center text-3xl font-black shadow-2xl" id="u-icon">?</div>
                     <div>
-                        <h3 class="font-extrabold text-xl">Telegram Premium</h3>
-                        <p class="text-[10px] text-purple-400/60 font-bold uppercase tracking-widest">Full Access • 1M</p>
+                        <div class="text-2xl font-extrabold" id="u-name">User</div>
+                        <div class="text-xs text-zinc-500 font-mono mt-1" id="u-id">ID: 000000</div>
                     </div>
-                    <div class="text-2xl font-black text-purple-400">$4.99</div>
                 </div>
-            </div>
 
-            <div class="product-card card-nft group" onclick="buy('NFT Gift', 15.0)">
-                <div class="img-wrapper overflow-hidden shadow-[0_0_30px_rgba(245,158,11,0.2)]">
-                    <img class="w-full h-full object-cover group-active:scale-110 transition-transform duration-500" 
-                         src="https://static.tildacdn.one/tild6539-6337-4638-b633-336532343061/GiftsGiftsGifts_AgAD.png" 
-                         alt="NFT Gift">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                </div>
-                <div class="flex justify-between items-center px-2 relative z-10">
-                    <div>
-                        <h3 class="font-extrabold text-xl">NFT Avatar Gift</h3>
-                        <p class="text-[10px] text-amber-500/60 font-bold uppercase tracking-widest">Limited Edition</p>
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="product-card text-center py-8 border-white/5">
+                        <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter mb-1">Баланс</p>
+                        <p class="text-2xl font-black">$0.00</p>
                     </div>
-                    <div class="text-2xl font-black text-amber-500">$15.00</div>
+                    <div class="product-card text-center py-8 border-white/5">
+                        <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter mb-1">Покупки</p>
+                        <p class="text-2xl font-black">0</p>
+                    </div>
                 </div>
-            </div>
 
-        </div>
+                <button id="admin-panel" class="hidden admin-glow w-full h-16 rounded-3xl font-black text-sm uppercase tracking-widest mb-4 text-white">
+                    ADMIN PANEL
+                </button>
+            </div>
+        </main>
+
+        <nav>
+            <div onclick="switchTab('catalog', this)" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3L4 9V21H20V9L12 3M12 7.7L18.1 12.3V19.4H5.9V12.3L12 7.7Z"/></svg>
+                <span>МАРКЕТ</span>
+            </div>
+            <div onclick="switchTab('profile', this)" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12C14.2 12 16 10.2 16 8C16 5.8 14.2 4 12 4C9.8 4 8 5.8 8 8C8 10.2 9.8 12 12 12M12 14C9.3 14 4 15.3 4 18V20H20V18C20 15.3 14.7 14 12 14Z"/></svg>
+                <span>ПРОФИЛЬ</span>
+            </div>
+        </nav>
     </div>
-</main>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.headerColor = '#08080a';
+        tg.backgroundColor = '#08080a';
+
+        const ADMIN_ID = 5585090176;
+
+        const user = tg.initDataUnsafe?.user || { first_name: "Cursor User", id: 0 };
+        document.getElementById('u-name').innerText = user.first_name;
+        document.getElementById('u-id').innerText = "ID: " + user.id;
+        document.getElementById('u-icon').innerText = user.first_name.charAt(0).toUpperCase();
+
+        if (user.id === ADMIN_ID) {
+            document.getElementById('admin-panel').classList.remove('hidden');
+        }
+
+        function switchTab(id, el) {
+            if (el.classList.contains('active')) return;
+
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+            
+            const currentSection = document.querySelector('.section.active');
+            currentSection.style.opacity = '0';
+            currentSection.style.transform = 'translateY(15px)';
+
+            setTimeout(() => {
+                currentSection.classList.remove('active');
+                const nextSection = document.getElementById(id);
+                nextSection.classList.add('active');
+                
+                // Триггер для перерисовки и начала анимации
+                setTimeout(() => {
+                    nextSection.style.opacity = '1';
+                    nextSection.style.transform = 'translateY(0)';
+                }, 50);
+            }, 300);
+
+            tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        function buy(name, price) {
+            tg.HapticFeedback.impactOccurred('heavy');
+            tg.showConfirm(`Вы уверены, что хотите приобрести ${name} за $${price}?`, (ok) => {
+                if(ok) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    tg.sendData(JSON.stringify({item: name, price: price}));
+                }
+            });
+        }
+    </script>
+</body>
+</html>
