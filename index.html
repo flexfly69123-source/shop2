@@ -14,7 +14,6 @@
             --card-bg: rgba(18, 18, 22, 0.7);
             --accent-blue: #3b82f6;
             --accent-purple: #a855f7;
-            --accent-gold: #f59e0b;
         }
 
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; }
@@ -22,8 +21,8 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent),
-                              radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.08), transparent);
+            background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent),
+                              radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.05), transparent);
             color: white; height: 100vh; overflow: hidden; margin: 0;
         }
 
@@ -35,34 +34,27 @@
             z-index: 100; position: relative;
         }
 
-        .balance-pill {
-            background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);
-            padding: 6px 14px; border-radius: 100px; display: flex; align-items: center; gap: 8px;
-        }
-
         main { flex: 1; overflow-y: auto; padding: 20px 18px 120px 18px; scroll-behavior: smooth; }
 
-        /* КАРТОЧКИ */
+        /* КОМПАКТНЫЕ КАРТОЧКИ (СЕТКА 2х2) */
         .product-card {
             background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 28px; padding: 16px; position: relative; overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 20px; padding: 12px; position: relative; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             backdrop-filter: blur(10px); opacity: 0;
         }
+        .product-card { animation: fadeInUp 0.5s forwards; }
+        .product-card:active { transform: scale(0.95); }
 
+        /* Эффект блика */
         .product-card::after {
             content: ''; position: absolute; top: -50%; left: -60%; width: 20%; height: 200%;
             background: rgba(255, 255, 255, 0.1); transform: rotate(30deg);
-            transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1); z-index: 2; pointer-events: none;
+            transition: all 0.5s; z-index: 2; pointer-events: none;
         }
         .product-card:active::after { left: 120%; }
-        .product-card:active { transform: scale(0.96); }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .product-card { animation: fadeInUp 0.6s forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .text-gradient {
             background: linear-gradient(90deg, #3b82f6, #a855f7, #3b82f6);
@@ -71,28 +63,31 @@
         }
         @keyframes shine-text { to { background-position: 200% center; } }
 
-        .img-wrapper {
-            width: 100%; height: 150px; border-radius: 20px; margin-bottom: 15px;
-            display: flex; align-items: center; justify-content: center; background: #121216; overflow: hidden;
-            position: relative;
+        .compact-img-wrapper {
+            width: 100%; height: 100px; border-radius: 12px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2);
+        }
+
+        /* Добавление новых карточек (заглушка) */
+        .add-card-placeholder {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            background: transparent; display: flex; align-items: center;
+            justify-content: center; min-height: 160px; border-radius: 20px;
+            color: rgba(255, 255, 255, 0.2); font-weight: 800; cursor: pointer;
         }
 
         /* Навигация */
         nav {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: calc(100% - 40px); height: 70px; background: rgba(15, 15, 20, 0.8);
+            width: calc(100% - 40px); height: 65px; background: rgba(15, 15, 20, 0.8);
             backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px; display: flex; justify-content: space-around; align-items: center; z-index: 1000;
         }
-        .nav-item { color: #4b5563; font-size: 11px; font-weight: 700; text-align: center; transition: 0.3s; }
+        .nav-item { color: #4b5563; font-size: 10px; font-weight: 700; text-align: center; }
         .nav-item.active { color: var(--accent-blue); }
 
-        .section { display: none; opacity: 0; transition: 0.4s; }
+        .section { display: none; opacity: 0; }
         .section.active { display: block; opacity: 1; }
-
-        .shadow-premium {
-            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.1);
-        }
     </style>
 </head>
 <body>
@@ -100,88 +95,83 @@
     <div class="app-shell">
         <header>
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black italic shadow-premium">C</div>
-                <span class="font-bold tracking-tight">CURSOR <span class="text-blue-500">AI STORE</span></span>
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black italic">C</div>
+                <span class="font-bold tracking-tight">CURSOR <span class="text-blue-500 text-gradient">AI</span></span>
             </div>
-            <div class="balance-pill">
-                <span class="text-xs font-extrabold text-blue-400">1,240</span>
+            <div class="bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full flex items-center gap-2">
+                <span class="text-xs font-black text-blue-400">1,240</span>
                 <span class="text-[10px]">⭐️</span>
             </div>
             <div id="progress-bar" style="height: 2px; width: 0%; background: var(--accent-blue); position: absolute; bottom: 0; left: 0; transition: width 0.1s;"></div>
         </header>
 
         <main id="main-scroll">
-            <div id="catalog" class="section active">
-                <h1 class="text-3xl font-extrabold mb-6 text-gradient">Магазин</h1>
-                <div class="grid grid-cols-1 gap-6">
+            <div id="home" class="section active">
+                <div class="relative overflow-hidden rounded-[32px] p-6 mb-8 bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/5">
+                    <h2 class="text-4xl font-black mb-2 leading-tight">Добро пожаловать в <span class="text-gradient">Будущее</span></h2>
+                    <p class="text-sm text-zinc-400">Лучшие цифровые товары и NFT в одном месте.</p>
+                    <div class="mt-6 flex gap-2">
+                        <button onclick="switchTab('catalog', document.querySelector('[data-tab=catalog]'))" class="bg-blue-600 px-5 py-2.5 rounded-xl font-bold text-sm">В магазин</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="product-card p-6" style="opacity: 1;">
+                        <p class="text-blue-500 font-bold text-xs uppercase mb-1">Тренды</p>
+                        <p class="text-xl font-black">#1 NFT</p>
+                    </div>
+                    <div class="product-card p-6" style="opacity: 1;">
+                        <p class="text-purple-500 font-bold text-xs uppercase mb-1">Скидки</p>
+                        <p class="text-xl font-black">-20%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="catalog" class="section">
+                <h1 class="text-2xl font-extrabold mb-6">Каталог товаров</h1>
+                <div class="grid grid-cols-2 gap-4">
                     <div class="product-card" style="animation-delay: 0.1s;" onclick="buy('50 Stars', 1.5)">
-                        <div class="img-wrapper">
-                            <img src="https://img.icons8.com/fluency/144/star--v1.png" class="w-20">
-                        </div>
-                        <div class="flex justify-between items-center px-2">
-                            <div>
-                                <h3 class="font-extrabold text-xl">50 Stars</h3>
-                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Мгновенно</p>
-                            </div>
-                            <div class="text-2xl font-black text-gradient">$1.50</div>
-                        </div>
+                        <div class="compact-img-wrapper"><img src="https://img.icons8.com/fluency/144/star--v1.png" class="w-12"></div>
+                        <h3 class="font-bold text-sm">50 Stars</h3>
+                        <div class="text-lg font-black text-gradient mt-1">$1.50</div>
                     </div>
 
                     <div class="product-card" style="animation-delay: 0.2s;" onclick="buy('Premium', 4.99)">
-                        <div class="img-wrapper">
-                            <img src="https://img.icons8.com/fluency/144/telegram-app.png" class="w-20">
-                        </div>
-                        <div class="flex justify-between items-center px-2">
-                            <div>
-                                <h3 class="font-extrabold text-xl">Premium</h3>
-                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Активация</p>
-                            </div>
-                            <div class="text-2xl font-black text-gradient">$4.99</div>
-                        </div>
+                        <div class="compact-img-wrapper"><img src="https://img.icons8.com/fluency/144/telegram-app.png" class="w-12"></div>
+                        <h3 class="font-bold text-sm">Premium</h3>
+                        <div class="text-lg font-black text-gradient mt-1">$4.99</div>
                     </div>
 
-                    <div class="product-card" style="animation-delay: 0.3s;" onclick="buy('NFT Avatar Gift', 15.00)">
-                        <div class="img-wrapper">
-                            <img src="https://static.tildacdn.one/tild6539-6337-4638-b633-336532343061/GiftsGiftsGifts_AgAD.png" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        </div>
-                        <div class="flex justify-between items-center px-2">
-                            <div>
-                                <h3 class="font-extrabold text-xl">NFT Avatar Gift</h3>
-                                <p class="text-[10px] text-amber-500 font-bold uppercase tracking-widest">EXCLUSIVE EDITION</p>
-                            </div>
-                            <div class="text-2xl font-black text-gradient">$15.00</div>
-                        </div>
+                    <div class="product-card" style="animation-delay: 0.3s;" onclick="buy('NFT Gift', 15.00)">
+                        <div class="compact-img-wrapper"><img src="https://static.tildacdn.one/tild6539-6337-4638-b633-336532343061/GiftsGiftsGifts_AgAD.png" class="w-full h-full object-cover"></div>
+                        <h3 class="font-bold text-sm">NFT Gift</h3>
+                        <div class="text-lg font-black text-gradient mt-1">$15.00</div>
+                    </div>
+
+                    <div class="add-card-placeholder" onclick="tg.showPopup({message: 'Тут можно будет добавить новый товар!'})">
+                        <span>+ НОВЫЙ</span>
                     </div>
                 </div>
             </div>
 
             <div id="profile" class="section">
-                <h1 class="text-3xl font-extrabold mb-8">Профиль</h1>
-                
-                <div class="product-card mb-6 flex items-center gap-5 p-6" style="opacity: 1;">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center text-3xl font-black shadow-2xl" id="u-icon">?</div>
+                <div class="flex items-center gap-5 mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black" id="u-icon">?</div>
                     <div>
-                        <div class="text-2xl font-extrabold" id="u-name">User</div>
-                        <div class="text-xs text-zinc-500 font-mono mt-1" id="u-id">ID: 000000</div>
+                        <div class="text-xl font-extrabold" id="u-name">User</div>
+                        <div class="text-xs text-zinc-500" id="u-id">ID: 0000</div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="product-card text-center py-8" style="opacity: 1;">
-                        <p class="text-[10px] font-bold text-zinc-500 uppercase mb-1">Баланс</p>
-                        <p class="text-2xl font-black">$0.00</p>
-                    </div>
-                    <div class="product-card text-center py-8" style="opacity: 1;">
-                        <p class="text-[10px] font-bold text-zinc-500 uppercase mb-1">Покупки</p>
-                        <p class="text-2xl font-black">0</p>
-                    </div>
+                    <div class="product-card text-center py-6" style="opacity: 1;"><p class="text-[10px] text-zinc-500 uppercase">Баланс</p><p class="text-xl font-black">$0.00</p></div>
+                    <div class="product-card text-center py-6" style="opacity: 1;"><p class="text-[10px] text-zinc-500 uppercase">Покупки</p><p class="text-xl font-black">0</p></div>
                 </div>
             </div>
         </main>
 
         <nav>
-            <div onclick="switchTab('catalog', this)" class="nav-item active">МАРКЕТ</div>
+            <div onclick="switchTab('home', this)" class="nav-item active">ГЛАВНАЯ</div>
+            <div onclick="switchTab('catalog', this)" data-tab="catalog" class="nav-item">МАРКЕТ</div>
             <div onclick="switchTab('profile', this)" class="nav-item">ПРОФИЛЬ</div>
         </nav>
     </div>
@@ -193,7 +183,7 @@
         tg.setHeaderColor('#08080a');
         tg.setBackgroundColor('#08080a');
 
-        const user = tg.initDataUnsafe?.user || { first_name: "Cursor User", id: 0 };
+        const user = tg.initDataUnsafe?.user || { first_name: "User", id: 0 };
         document.getElementById('u-name').innerText = user.first_name;
         document.getElementById('u-id').innerText = "ID: " + user.id;
         document.getElementById('u-icon').innerText = user.first_name.charAt(0).toUpperCase();
@@ -202,19 +192,12 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById(id);
-            target.classList.add('active');
-            tg.HapticFeedback.impactOccurred('medium');
+            document.getElementById(id).classList.add('active');
+            tg.HapticFeedback.impactOccurred('light');
         }
 
         function buy(name, price) {
-            tg.HapticFeedback.impactOccurred('heavy');
-            tg.showConfirm(`Купить ${name} за $${price}?`, (ok) => {
-                if(ok) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                    tg.sendData(JSON.stringify({item: name, price: price}));
-                }
-            });
+            tg.showConfirm(`Купить ${name}?`, (ok) => { if(ok) tg.sendData(name); });
         }
 
         document.getElementById('main-scroll').onscroll = function() {
