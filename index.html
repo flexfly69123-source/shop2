@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Store AI Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Store AI</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,200 +11,219 @@
         
         :root {
             --accent-blue: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.3);
+            --accent-glow: rgba(59, 130, 246, 0.4);
             --bg-dark: #050505;
-            --card-bg: #0f0f12;
-            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Запрет выделения текста */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top, #111827 0%, #050505 100%);
+            background: radial-gradient(circle at 50% 0%, #111827 0%, #050505 100%);
             color: #f4f4f5;
-            overflow: hidden;
             height: 100vh;
+            overflow: hidden; /* Важно для Full Screen */
+            margin: 0;
+            display: flex;
+            justify-content: center;
         }
 
-        /* Насыщенные карточки с контуром */
-        .card-premium {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Контейнер для адаптации под ПК */
+        .app-container {
+            width: 100%;
+            max-width: 500px; /* На ПК будет как телефон */
+            height: 100vh;
+            display: flex;
+            flex-col: column;
             position: relative;
-            overflow: hidden;
+            background: #050505;
+            border-left: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Эффект прожатия */
-        .card-premium:active, .nav-item:active {
-            transform: scale(0.94);
-            filter: brightness(1.2);
+        /* Эффект свечения контура */
+        .glow-border {
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.1);
         }
 
-        /* Свечение (Glow) */
-        .glow-blue {
-            box-shadow: 0 0 15px var(--accent-glow);
+        /* Исправленное прожатие (клик) */
+        .clickable {
+            cursor: pointer;
+            transition: transform 0.1s active, opacity 0.1s;
+            touch-action: manipulation;
+        }
+        .clickable:active {
+            transform: scale(0.96);
+            opacity: 0.8;
         }
 
-        .active-tab {
-            color: var(--accent-blue) !important;
-            text-shadow: 0 0 10px var(--accent-glow);
-            border-top: 2px solid var(--accent-blue);
-            background: linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent);
+        /* Анимация вкладок */
+        .nav-item {
+            color: #52525b;
+            transition: all 0.3s ease;
+            position: relative;
         }
-
-        /* Кнопки с контуром */
-        .btn-outline {
-            border: 1px solid var(--accent-blue);
-            box-shadow: inset 0 0 5px var(--accent-glow);
-            transition: all 0.3s;
+        .nav-item.active {
+            color: var(--accent-blue);
         }
-
-        .btn-outline:active {
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
             background: var(--accent-blue);
-            box-shadow: 0 0 20px var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-blue);
         }
 
-        /* Категории (фильтры) */
-        .filter-btn {
-            border: 1px solid var(--border-color);
-            transition: all 0.2s;
+        .section { display: none; height: 100%; overflow-y: auto; padding-bottom: 100px; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .filter-btn.active {
-            border-color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.1);
-            color: white;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .section { display: none; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
-        .section.active { display: block; opacity: 1; transform: translateY(0); }
-
-        /* Кастомный скролл */
+        /* Скрытие скроллбара */
         ::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
-<body class="flex flex-col pb-20">
+<body>
 
-    <header class="p-5 flex justify-between items-center bg-black/40 backdrop-blur-xl border-b border-white/5 fixed top-0 w-full z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-3 h-3 rounded-full bg-blue-500 glow-blue"></div>
-            <span class="font-bold text-sm tracking-widest text-white uppercase">Cursor Store</span>
-        </div>
-        <div class="bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full">
-            <span id="balance" class="text-xs font-bold text-blue-400">1,240 ⭐️</span>
-        </div>
-    </header>
-
-    <main class="flex-1 overflow-y-auto mt-20 p-4 space-y-6">
-        
-        <div id="catalog" class="section active space-y-4">
-            <div class="flex gap-2 overflow-x-auto pb-2" id="filter-container">
-                <button onclick="filterCategory('all', this)" class="filter-btn active px-4 py-1.5 rounded-full text-xs font-medium text-zinc-400 whitespace-nowrap">Все</button>
-                <button onclick="filterCategory('Stars', this)" class="filter-btn px-4 py-1.5 rounded-full text-xs font-medium text-zinc-400 whitespace-nowrap">Stars</button>
-                <button onclick="filterCategory('Premium', this)" class="filter-btn px-4 py-1.5 rounded-full text-xs font-medium text-zinc-400 whitespace-nowrap">Premium</button>
-                <button onclick="filterCategory('NFT', this)" class="filter-btn px-4 py-1.5 rounded-full text-xs font-medium text-zinc-400 whitespace-nowrap">NFT Gifts</button>
+    <div class="app-container">
+        <header class="p-5 flex justify-between items-center bg-black/60 backdrop-blur-xl border-b border-white/10 z-[100]">
+            <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"></div>
+                <span class="font-bold text-xs tracking-[0.2em] text-white uppercase">Cursor AI Store</span>
             </div>
+            <div class="bg-blue-500/10 border border-blue-500/30 px-3 py-1 rounded-md">
+                <span id="header-balance" class="text-[10px] font-mono font-bold text-blue-400">1,240 ⭐️</span>
+            </div>
+        </header>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="card-premium p-4 flex flex-col gap-3 product-item cat-Stars" onclick="buyItem('100 Stars', 2.0)">
-                    <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center text-xl shadow-inner">⭐️</div>
-                    <div>
-                        <div class="text-sm font-bold text-white">100 Stars</div>
-                        <div class="text-[10px] text-zinc-500 uppercase tracking-tighter">Мгновенно</div>
+        <main class="flex-1 overflow-hidden relative">
+            
+            <div id="catalog" class="section active p-4 space-y-6">
+                <div class="flex gap-2 overflow-x-auto no-scrollbar py-2">
+                    <button onclick="filterCategory('all', this)" class="cat-btn bg-blue-600 text-white px-5 py-2 rounded-lg text-xs font-bold border border-blue-400/50 clickable">Все</button>
+                    <button onclick="filterCategory('Stars', this)" class="cat-btn bg-zinc-900 text-zinc-400 px-5 py-2 rounded-lg text-xs font-bold border border-white/5 clickable">Stars</button>
+                    <button onclick="filterCategory('Premium', this)" class="cat-btn bg-zinc-900 text-zinc-400 px-5 py-2 rounded-lg text-xs font-bold border border-white/5 clickable">Premium</button>
+                    <button onclick="filterCategory('NFT', this)" class="cat-btn bg-zinc-900 text-zinc-400 px-5 py-2 rounded-lg text-xs font-bold border border-white/5 clickable">NFT</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="product-item cat-Stars bg-zinc-900/50 border border-white/5 p-4 rounded-2xl flex flex-col gap-4 glow-border clickable" onclick="buyItem('50 Stars', 1.5)">
+                        <div class="text-3xl">⭐️</div>
+                        <div>
+                            <div class="text-sm font-bold text-white">50 Stars</div>
+                            <div class="text-[10px] text-zinc-500 uppercase tracking-widest">Instant Delivery</div>
+                        </div>
+                        <div class="text-blue-400 font-bold text-sm">$1.50</div>
                     </div>
-                    <button class="btn-outline w-full py-2 rounded-lg text-xs font-bold text-blue-400 bg-blue-500/5">
-                        $2.00
-                    </button>
-                </div>
-
-                <div class="card-premium p-4 flex flex-col gap-3 product-item cat-Premium" onclick="buyItem('Premium 1Y', 35.0)">
-                    <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-xl shadow-inner">💎</div>
-                    <div>
-                        <div class="text-sm font-bold text-white">Premium</div>
-                        <div class="text-[10px] text-zinc-500 uppercase tracking-tighter">На 1 Год</div>
+                    
+                    <div class="product-item cat-Premium bg-zinc-900/50 border border-white/5 p-4 rounded-2xl flex flex-col gap-4 glow-border clickable" onclick="buyItem('Premium 1M', 4.99)">
+                        <div class="text-3xl">💎</div>
+                        <div>
+                            <div class="text-sm font-bold text-white">Premium</div>
+                            <div class="text-[10px] text-zinc-500 uppercase tracking-widest">1 Month</div>
+                        </div>
+                        <div class="text-blue-400 font-bold text-sm">$4.99</div>
                     </div>
-                    <button class="btn-outline w-full py-2 rounded-lg text-xs font-bold text-blue-400 bg-blue-500/5">
-                        $35.00
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <div id="profile" class="section space-y-6">
-            <div class="card-premium p-6 flex items-center gap-4 bg-gradient-to-br from-zinc-900 to-black">
-                <div class="w-16 h-16 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-2xl shadow-2xl" id="user-pfp">👤</div>
-                <div>
-                    <h2 class="text-xl font-bold text-white" id="user-name">User</h2>
-                    <p class="text-xs text-zinc-500 font-mono" id="user-id">ID: 00000000</p>
+                    <div class="product-item cat-NFT bg-zinc-900/50 border border-white/5 p-4 rounded-2xl flex flex-col gap-4 glow-border clickable" onclick="buyItem('NFT Gift', 15.0)">
+                        <div class="text-3xl">🎁</div>
+                        <div>
+                            <div class="text-sm font-bold text-white">NFT Avatar</div>
+                            <div class="text-[10px] text-zinc-500 uppercase tracking-widest">Limited</div>
+                        </div>
+                        <div class="text-blue-400 font-bold text-sm">$15.00</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="card-premium p-4 text-center border-blue-500/20">
-                    <p class="text-[10px] text-zinc-500 uppercase mb-1">Покупок</p>
-                    <p class="text-xl font-bold text-white">24</p>
+            <div id="profile" class="section p-4 space-y-4">
+                <div class="bg-zinc-900/80 border border-white/10 p-6 rounded-3xl flex items-center gap-4">
+                    <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-xl font-bold shadow-lg" id="avatar-placeholder">?</div>
+                    <div>
+                        <h2 id="user-full-name" class="text-lg font-bold text-white leading-none">Loading...</h2>
+                        <p id="user-id-text" class="text-[10px] text-zinc-500 font-mono mt-1">ID: 00000000</p>
+                    </div>
                 </div>
-                <div class="card-premium p-4 text-center">
-                    <p class="text-[10px] text-zinc-500 uppercase mb-1">Ранг</p>
-                    <p class="text-xl font-bold text-blue-400">Elite</p>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-zinc-900/30 border border-white/5 p-4 rounded-2xl">
+                        <p class="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">Баланс</p>
+                        <p class="text-xl font-bold text-white">$0.00</p>
+                    </div>
+                    <div class="bg-zinc-900/30 border border-white/5 p-4 rounded-2xl">
+                        <p class="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">Заказы</p>
+                        <p class="text-xl font-bold text-white">0</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-4">
+                    <button onclick="tg.showAlert('Пополнение через бот')" class="w-full bg-blue-600 py-4 rounded-xl text-white font-bold text-sm clickable">ПОПОЛНИТЬ</button>
+                    <button class="w-full bg-zinc-900 border border-white/10 py-4 rounded-xl text-zinc-300 font-bold text-sm clickable">ИСТОРИЯ</button>
                 </div>
             </div>
+        </main>
 
-            <button class="w-full py-4 card-premium bg-white text-black font-bold text-sm shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                ПОПОЛНИТЬ БАЛАНС
+        <nav class="absolute bottom-0 w-full bg-black/80 backdrop-blur-2xl border-t border-white/5 flex justify-around items-center pt-3 pb-8 z-[100]">
+            <button onclick="switchTab('catalog', this)" class="nav-item active flex flex-col items-center gap-1 clickable">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Магазин</span>
             </button>
-        </div>
-
-    </main>
-
-    <nav class="fixed bottom-0 w-full bg-black/80 backdrop-blur-2xl border-t border-white/5 flex justify-around items-center px-4 pb-6 pt-2 z-50">
-        <button onclick="switchTab('catalog', this)" class="nav-item flex flex-col items-center gap-1 p-2 transition-all active-tab">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-            <span class="text-[9px] font-bold uppercase tracking-widest">Каталог</span>
-        </button>
-        <button onclick="switchTab('profile', this)" class="nav-item flex flex-col items-center gap-1 p-2 transition-all text-zinc-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            <span class="text-[9px] font-bold uppercase tracking-widest">Профиль</span>
-        </button>
-        <button onclick="tg.openTelegramLink('https://t.me/your_support')" class="nav-item flex flex-col items-center gap-1 p-2 transition-all text-zinc-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            <span class="text-[9px] font-bold uppercase tracking-widest">Support</span>
-        </button>
-    </nav>
+            <button onclick="switchTab('profile', this)" class="nav-item flex flex-col items-center gap-1 clickable">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">Профиль</span>
+            </button>
+        </nav>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
+        
+        // Оптимизация Full Screen
         tg.expand();
+        tg.enableClosingConfirmation();
         tg.headerColor = '#050505';
+        tg.backgroundColor = '#050505';
 
-        // Инициализация данных пользователя
+        // Данные пользователя
         const user = tg.initDataUnsafe.user || { first_name: "Пользователь", id: "00000000" };
-        document.getElementById('user-name').innerText = user.first_name;
-        document.getElementById('user-id').innerText = `ID: ${user.id}`;
+        document.getElementById('user-full-name').innerText = user.first_name;
+        document.getElementById('user-id-text').innerText = `ID: ${user.id}`;
+        document.getElementById('avatar-placeholder').innerText = user.first_name.charAt(0);
 
+        // Исправленная навигация
         function switchTab(tabId, el) {
-            // Анимация вкладок
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active-tab', 'text-zinc-600'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.add('text-zinc-600'));
-            el.classList.add('active-tab');
-            el.classList.remove('text-zinc-600');
-
-            // Переключение контента
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById(tabId);
-            target.classList.add('active');
-
-            tg.HapticFeedback.impactOccurred('medium');
-        }
-
-        function filterCategory(category, el) {
-            // Визуал кнопок
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             el.classList.add('active');
 
-            // Фильтрация
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // Исправленная фильтрация каталога
+        function filterCategory(category, el) {
+            // Визуал кнопок категорий
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn bg-zinc-900 text-zinc-400 px-5 py-2 rounded-lg text-xs font-bold border border-white/5 clickable";
+            });
+            el.className = "cat-btn bg-blue-600 text-white px-5 py-2 rounded-lg text-xs font-bold border border-blue-400/50 clickable";
+
+            // Логика фильтрации
             const items = document.querySelectorAll('.product-item');
             items.forEach(item => {
                 if (category === 'all' || item.classList.contains('cat-' + category)) {
@@ -217,12 +236,22 @@
         }
 
         function buyItem(name, price) {
-            tg.showConfirm(`Подтвердить покупку ${name} за $${price}?`, (ok) => {
+            tg.showConfirm(`Вы действительно хотите купить ${name} за $${price}?`, (ok) => {
                 if(ok) {
-                    tg.sendData(JSON.stringify({item: name, price: price}));
+                    tg.HapticFeedback.notificationOccurred('success');
+                    tg.sendData(JSON.stringify({
+                        action: 'purchase',
+                        item: name,
+                        price: price
+                    }));
                 }
             });
         }
+
+        // Принудительный разворот при клике (на случай если не сработал сразу)
+        document.body.addEventListener('click', () => {
+            if (!tg.isExpanded) tg.expand();
+        });
     </script>
 </body>
 </html>
