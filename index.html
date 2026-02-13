@@ -5,138 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Store AI</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Сообщаем Telegram, что мы готовы, как можно раньше
+        window.Telegram.WebApp.ready();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
-        :root {
-            --accent-blue: #3b82f6;
-            --bg-dark: #050505;
-        }
-
-        * {
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
-            box-sizing: border-box;
-        }
+        :root { --accent-blue: #3b82f6; }
+        * { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #000; /* Фон за пределами приложения на ПК */
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center; /* Центрируем контейнер */
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* Основной контейнер-телефон */
-        .app-shell {
-            width: 100%;
-            max-width: 450px; /* Фиксация ширины на ПК */
-            height: 100vh;
-            background: radial-gradient(circle at 50% 0%, #111827 0%, #050505 100%);
-            display: flex;
-            flex-direction: column;
-            position: relative;
+            background: #000;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center;
+            min-height: 100vh; color: white;
             overflow: hidden;
-            border-left: 1px solid rgba(255,255,255,0.05);
-            border-right: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Шапка */
+        .app-shell {
+            width: 100%; max-width: 450px; height: 100vh;
+            background: radial-gradient(circle at 50% 0%, #111827 0%, #050505 100%);
+            display: flex; flex-direction: column; position: relative;
+        }
+
         header {
-            flex-shrink: 0;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            z-index: 50;
+            height: 64px; display: flex; align-items: center; justify-content: flex-end; /* Баланс справа */
+            padding: 0 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 50;
         }
 
-        /* Контентная часть */
-        main {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 100px; /* Место под навигацию */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* Кастомный скролл */
-        main::-webkit-scrollbar { width: 0; }
-
-        /* Карточки с неоновым контуром */
+        main { flex-grow: 1; overflow-y: auto; padding: 20px 20px 100px 20px; }
+        
         .card-premium {
-            background: rgba(15, 15, 18, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
+            background: rgba(24, 24, 27, 0.4); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px; padding: 20px; cursor: pointer; transition: all 0.2s;
         }
-        .card-premium:active {
-            transform: scale(0.96);
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
-        }
+        .card-premium:active { transform: scale(0.96); border-color: var(--accent-blue); }
 
-        /* Навигация */
         nav {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            background: rgba(5, 5, 5, 0.8);
-            backdrop-filter: blur(20px);
+            position: absolute; bottom: 0; width: 100%; height: 80px;
+            background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(20px);
             border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding-bottom: 20px;
-            z-index: 100;
+            display: flex; justify-content: space-around; align-items: center; padding-bottom: 20px;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #52525b;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.3s;
-        }
-        .nav-item.active {
-            color: var(--accent-blue);
-            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
-        }
+        .nav-item { color: #52525b; font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .nav-item.active { color: var(--accent-blue); }
 
-        /* Анимация секций */
         .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Кнопки фильтров */
         .filter-btn {
-            padding: 8px 20px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: #0f0f12;
-            color: #71717a;
-            transition: all 0.2s;
-            white-space: nowrap;
+            padding: 8px 18px; border-radius: 12px; font-size: 12px; font-weight: 600;
+            background: #18181b; color: #71717a; transition: all 0.2s;
         }
-        .filter
+        .filter-btn.active { background: var(--accent-blue); color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <header>
+            <div class="bg-blue-500/10 border border-blue-500/30 px-3 py-1 rounded-full text-blue-400 text-xs font-bold">
+                1,240 ⭐️
+            </div>
+        </header>
+
+        <main>
+            <section id="catalog" class="section active">
+                <h2 class="text-2xl font-bold mb-6">Магазин</h2>
+                <div class="flex gap-2 mb-8
